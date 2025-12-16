@@ -25,7 +25,8 @@
 ## 各ファイル/フォルダ
 |影響するコマンド/アプリ|gitに上がっているファイル/フォルダ名|実際に配置されているディレクトリ、ファイルの絶対パス|備考|
 |:-:|:-:|:-:|:-:|
-|nvim|nvim_cp|~/.config/nvim/|実際に書いたのはinit.luaとluaディレクトリ内部のファイル|
+|nvim|
+||nvim_cp|~/.config/nvim/|実際に書いたのはinit.luaとluaディレクトリ内部のファイル|
 ||init.lua|~/.config/nvim/init.lua|luaディレクトリに書かれているプログラムをまとめている。簡単に書きたい場合はこれだけ書けばいい|
 ||autocmds.lua|~/.config/nvim/lua/autocmds.lua|`nvim`コマンドを入力した際に実行するプログラム群,Neotreeとかを自動で開くとかで使う|
 ||base.lua|~/.config/nvim/lua/base.lua|encodeingの指定とかユーザー独自のコマンド作りたい時とかに使う|
