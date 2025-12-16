@@ -16,7 +16,6 @@
 │   │   └── plugins.lua
 │   └── plugin
 │       └── packer_compiled.lua
-├── README.md
 ├── tmux_cp.conf
 ├── vimrc_cp
 └── zsh_cp
@@ -34,4 +33,9 @@
 ||keymaps.lua|~/.config/nvim/lua/keymaps.lua|独自のショートカットコマンド(keymap)を作るときに使う|
 ||options.lua|~/.config/nvim/lua/options.lua|nvimの各種設定を書くファイル|
 ||plugins.lua|~/.config/nvim/lua/plugins.lua|プラグインを入れる時とか同期する時とかに使う`PackerSync`でプラグインを同期することもできる|
-
+|tmux|
+||tmux_cp.conf|~/.tmux.conf|プレフィックスキーの設定や、ユーザー独自のkeybindの設定など|
+|vim|
+||vimrc_cp|~/.vimrc|vimの設定ファイル。ここではmacbookのクリップボードの実装や、行番号の表示ぐらいしかしてないはず|
+|terminal|
+||zsh_cp|~/.zshrc|人によっては.bashかも。macbookのターミナルの設定や、PATHの設定、ショートカットコマンドの定義など|
