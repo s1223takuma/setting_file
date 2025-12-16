@@ -1,0 +1,5 @@
+set clipboard=unnamedplus
+set number
+set mouse=a
+syntax on
+set nocompatible
