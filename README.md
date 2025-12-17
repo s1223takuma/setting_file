@@ -1,41 +1,175 @@
-# macとかvim/neovimとかtmuxとかの設定ファイル一覧
+# mac / Vim / Neovim / tmux 設定ファイルまとめ
+
+このリポジトリは、  
+**macOS + ターミナル + Vim / Neovim / tmux** の設定ファイルを管理するためのものです。
+
+⚠️ **注意**  
+このリポジトリに置いてあるファイルは **そのまま使われている実ファイルではありません**。  
+実際の設定ファイルを **コピーしたもの（_cp）** を置いています。
+
+---
+
+## 目的
+
+- dotfiles を GitHub で安全に管理したい
+- mac / Linux どちらでも再現しやすくしたい
+- Neovim で慣れつつ、最終的に Vim も使える状態を維持したい
+- tmux × vim の操作体系を統一したい
+
+---
 
 ## ファイル構成
-##### (このファイルはコピーであり、実際の設定ファイルとは名前や配置場所が少し違います。ご注意ください)
+
 ```
+
 .
 ├── nvim_cp
-│   ├── init.lua
-│   ├── lazy-lock.json
-│   ├── lua
-│   │   ├── autocmds.lua
-│   │   ├── base.lua
-│   │   ├── colorscheme.lua
-│   │   ├── keymaps.lua
-│   │   ├── options.lua
-│   │   └── plugins.lua
-│   └── plugin
-│       └── packer_compiled.lua
+│   ├── init.lua
+│   ├── lazy-lock.json
+│   ├── lua
+│   │   ├── autocmds.lua
+│   │   ├── base.lua
+│   │   ├── colorscheme.lua
+│   │   ├── keymaps.lua
+│   │   ├── options.lua
+│   │   └── plugins.lua
+│   └── plugin
+│       └── packer_compiled.lua
 ├── tmux_cp.conf
 ├── vimrc_cp
 └── zsh_cp
+
 ```
 
-## 各ファイル/フォルダ
-|影響するコマンド/アプリ|gitに上がっているファイル/フォルダ名|実際に配置されているディレクトリ、ファイルの絶対パス|備考|
-|:-:|:-:|:-:|:-:|
-|nvim|
-||nvim_cp|~/.config/nvim/|実際に書いたのはinit.luaとluaディレクトリ内部のファイル|
-||init.lua|~/.config/nvim/init.lua|luaディレクトリに書かれているプログラムをまとめている。簡単に書きたい場合はこれだけ書けばいい|
-||autocmds.lua|~/.config/nvim/lua/autocmds.lua|`nvim`コマンドを入力した際に実行するプログラム群,Neotreeとかを自動で開くとかで使う|
-||base.lua|~/.config/nvim/lua/base.lua|encodeingの指定とかユーザー独自のコマンド作りたい時とかに使う|
-||colorscheme.lua|~/.config/nvim/lua/colorscheme.lua|nvimの見た目とかの設定|
-||keymaps.lua|~/.config/nvim/lua/keymaps.lua|独自のショートカットコマンド(keymap)を作るときに使う|
-||options.lua|~/.config/nvim/lua/options.lua|nvimの各種設定を書くファイル|
-||plugins.lua|~/.config/nvim/lua/plugins.lua|プラグインを入れる時とか同期する時とかに使う`PackerSync`でプラグインを同期することもできる|
-|tmux|
-||tmux_cp.conf|~/.tmux.conf|プレフィックスキーの設定や、ユーザー独自のkeybindの設定など|
-|vim|
-||vimrc_cp|~/.vimrc|vimの設定ファイル。ここではmacbookのクリップボードの実装や、行番号の表示ぐらいしかしてないはず|
-|terminal|
-||zsh_cp|~/.zshrc|人によっては.bashかも。macbookのターミナルの設定や、PATHの設定、ショートカットコマンドの定義など|
+---
+
+## 各設定ファイルの役割
+
+### Neovim
+
+| Git上の名前 | 実際の配置先 | 役割 |
+|------------|-------------|------|
+| `nvim_cp/` | `~/.config/nvim/` | Neovim 設定全体 |
+| `init.lua` | `~/.config/nvim/init.lua` | 各 Lua ファイルを読み込むエントリーポイント |
+| `autocmds.lua` | `~/.config/nvim/lua/autocmds.lua` | 起動時自動処理（Neo-tree自動起動など） |
+| `base.lua` | `~/.config/nvim/lua/base.lua` | 文字コード・共通関数など基礎設定 |
+| `options.lua` | `~/.config/nvim/lua/options.lua` | `set number` などの各種オプション |
+| `keymaps.lua` | `~/.config/nvim/lua/keymaps.lua` | キーバインド定義 |
+| `colorscheme.lua` | `~/.config/nvim/lua/colorscheme.lua` | テーマ設定 |
+| `plugins.lua` | `~/.config/nvim/lua/plugins.lua` | プラグイン定義（Packer 使用） |
+| `lazy-lock.json` | 同上 | プラグインのバージョン固定用 |
+
+📌 **プラグイン同期**
+```vim
+:PackerSync
+```
+
+---
+
+### tmux
+
+| Git上の名前        | 実際の配置先         | 役割           |
+| -------------- | -------------- | ------------ |
+| `tmux_cp.conf` | `~/.tmux.conf` | tmux の設定ファイル |
+
+* prefix: `Ctrl + a`
+* Vim風 pane 移動（`Ctrl + h/j/k/l`）
+* macOS クリップボード連携（pbcopy）
+
+---
+
+### Vim（素の Vim）
+
+| Git上の名前    | 実際の配置先     | 役割          |
+| ---------- | ---------- | ----------- |
+| `vimrc_cp` | `~/.vimrc` | 最小構成 Vim 設定 |
+
+* 行番号表示
+* マウス有効
+* macOS クリップボード共有
+* **極力デフォルト挙動を維持**
+
+📌 **目的**
+Neovim で慣れた操作感を維持しつつ、
+どの現場でも Vim が触れる状態にするため。
+
+---
+
+### ターミナル（zsh）
+
+| Git上の名前  | 実際の配置先     | 役割     |
+| -------- | ---------- | ------ |
+| `zsh_cp` | `~/.zshrc` | zsh 設定 |
+
+* Zim 使用
+* PATH 管理
+* alias 定義
+* pyenv / virtualenv 対応
+* secrets は `.secrets` に分離（Git非管理）
+
+---
+
+## セキュリティ方針
+
+* 実ファイルは直接 Git に上げない
+* `.secrets` / APIキー / トークン類は **絶対に含めない**
+* 必ずコピーしてからコミットする
+
+---
+
+## セットアップ手順
+
+```sh
+cp vimrc_cp ~/.vimrc
+cp tmux_cp.conf ~/.tmux.conf
+cp -r nvim_cp ~/.config/nvim
+cp zsh_cp ~/.zshrc
+```
+
+---
+
+## 前提環境
+
+* macOS
+* Homebrew
+* Vim / Neovim
+* tmux
+* zsh
+
+```
+
+---
+
+## 追加するとさらに良くなる情報
+
+### ① キーバインド方針（超おすすめ）
+```md
+## キーバインド設計方針
+
+- 移動はすべて `hjkl`
+- tmux / vim / nvim で操作を揃える
+- prefix / leader を極力減らす
+```
+
+### ② 依存関係
+
+```md
+## 必要なツール
+
+- vim (brew)
+- neovim (brew)
+- tmux
+- pbcopy（macOS）
+- Packer.nvim
+```
+
+### ③ トラブルシューティング
+
+```md
+## よくあるトラブル
+
+### yank が mac のクリップボードに入らない
+- vim --version | grep clipboard
+- +clipboard が有効か確認
+- tmux 経由なら pbcopy 設定必須
+```
