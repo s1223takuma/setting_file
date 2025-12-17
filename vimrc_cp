@@ -1,5 +1,8 @@
-set clipboard=unnamedplus
+set nocompatible
+syntax on
 set number
 set mouse=a
-syntax on
-set nocompatible
+
+" macOS clipboard
+set clipboard=unnamed
+set clipboard+=unnamedplus
