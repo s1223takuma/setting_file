@@ -2,7 +2,8 @@ set nocompatible
 syntax on
 set number
 set mouse=a
-
+nnoremap <CR> a<br><CR><Esc>
+set tabstop=4
 " macOS clipboard
 set clipboard=unnamed
 set clipboard+=unnamedplus
