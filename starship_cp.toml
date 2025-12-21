@@ -1,22 +1,35 @@
-format = """
-$directory\
-$git_branch\
-$python\
-$character
-"""
+[python] 
+format = "[$symbol$version]($style) [$virtualenv](bold green)" 
 
-[python]
-symbol = "Python: "
-format = "[$symbol$version]($style) "
+[git_branch] 
+symbol = "🌱 "
+format = "[$symbol$branch]($style) " 
 
-[git_branch]
-symbol = "Git: "
-format = "[$symbol$branch]($style) "
+[git_commit]
+commit_hash_length = 7
+only_detached = false
+tag_symbol = "🏷"
 
-[directory]
-style = "cyan"
+[git_status]
+conflicted = "🏳"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕⇡${ahead_count}⇣${behind_count}"
+up_to_date = "✓"
+untracked = "?"
+stashed = "\\$"
+modified = "!"
+staged = "+"
+renamed = "»"
+deleted = "✘"
+
+[git_state]
+format = "[\\($state\\)]($style) "
+
+[git_metrics]
+disabled = false
+format = "([+$added]($added_style) [-$deleted]($deleted_style) )"
+
+[directory] 
+style = "bold cyan" 
 truncation_length = 3
-
-[character]
-success_symbol = "\n[➜](bold green) "
-error_symbol = "[✗](bold red) "
