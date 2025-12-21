@@ -23,17 +23,18 @@
 ```
 .
 ├── nvim_cp
-│   ├── init.lua
-│   ├── lazy-lock.json
-│   ├── lua
-│   │   ├── autocmds.lua
-│   │   ├── base.lua
-│   │   ├── colorscheme.lua
-│   │   ├── keymaps.lua
-│   │   ├── options.lua
-│   │   └── plugins.lua
-│   └── plugin
-│       └── packer_compiled.lua
+│   ├── init.lua
+│   ├── lazy-lock.json
+│   ├── lua
+│   │   ├── autocmds.lua
+│   │   ├── base.lua
+│   │   ├── colorscheme.lua
+│   │   ├── keymaps.lua
+│   │   ├── options.lua
+│   │   └── plugins.lua
+│   └── plugin
+│       └── packer_compiled.lua
+├── starship_cp.tomi
 ├── tmux_cp.conf
 ├── vimrc_cp
 └── zsh_cp
@@ -85,11 +86,14 @@
 * 行番号表示
 * マウス有効
 * macOS クリップボード共有
-* **極力デフォルト挙動を維持**
 
-📌 **目的**
-Neovim で慣れた操作感を維持しつつ、
-どの現場でも Vim が触れる状態にするため。
+---
+
+### starship
+
+| Git上の名前    | 実際の配置先     | 役割          |
+| ---------- | ---------- | ----------- |
+| `starship_cp.toml` | `~/.config/starship.toml` | ターミナルのカレントディレクトリや現在のgitのbranchの表示|
 
 ---
 
@@ -122,6 +126,7 @@ cp vimrc_cp ~/.vimrc
 cp tmux_cp.conf ~/.tmux.conf
 cp -r nvim_cp ~/.config/nvim
 cp zsh_cp ~/.zshrc
+cp starship_cp.toml ~/.config/starship.toml
 ```
 
 ---
