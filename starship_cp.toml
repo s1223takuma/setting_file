@@ -19,6 +19,7 @@ up_to_date = "✓"
 untracked = "?"
 stashed = "\\$"
 modified = "!"
+staged = "+"
 renamed = "»"
 deleted = "✘"
 
