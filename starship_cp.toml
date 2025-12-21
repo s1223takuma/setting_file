@@ -32,4 +32,6 @@ format = "([+$added]($added_style) [-$deleted]($deleted_style) )"
 
 [directory] 
 style = "bold cyan" 
-truncation_length = 3
+truncation_length = 0 
+truncate_to_repo = false 
+format = "[$path]($style)[$read_only]($read_only_style) "
