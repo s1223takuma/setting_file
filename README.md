@@ -93,7 +93,11 @@
 
 | Git上の名前    | 実際の配置先     | 役割          |
 | ---------- | ---------- | ----------- |
-| `starship_cp.toml` | `~/.config/starship.toml` | ターミナルのカレントディレクトリや現在のgitのbranchの表示|
+| `starship_cp.toml` | `~/.config/starship.toml` | starshipの設定ファイル |
+
+* ターミナルでのカレントディレクトリの表記
+* Pythonのバージョンの表記
+* gitのbranchや現在のステータスの表記
 
 ---
 
