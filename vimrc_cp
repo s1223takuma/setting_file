@@ -1,9 +1,28 @@
+" 機能の初期設定
 set nocompatible
 syntax on
+set mouse=
+
+" 表示の設定
 set number
-set mouse=a
+set wildmenu
+set showcmd
+
+" キーバインド
 nnoremap <CR> a<br><CR><Esc>
+highlight Comment ctermfg=lightblue
+
+" インデント関連の設定
 set tabstop=4
-" macOS clipboard
+set autoindent
+set nosmartindent
+set nocindent
+set expandtab
+
+" macのクリップボード関連の設定
 set clipboard=unnamed
 set clipboard+=unnamedplus
+
+" 検索機能
+set ignorecase
+set hlsearch
