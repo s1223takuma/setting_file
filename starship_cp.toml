@@ -35,3 +35,9 @@ style = "bold cyan"
 truncation_length = 0 
 truncate_to_repo = false 
 format = "[$path]($style)[$read_only]($read_only_style) "
+
+[time]
+disabled = false
+format = "[$time]($style) "
+time_format = "%m/%d %H:%M:%S"
+style = "bold yellow"
