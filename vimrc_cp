@@ -26,3 +26,14 @@ set clipboard+=unnamedplus
 " 検索機能
 set ignorecase
 set hlsearch
+nnoremap <Esc> :noh<CR>
+
+"独自コマンド
+":Memoでメモファイルを開く
+command! Memo execute 'edit ~/Desktop/memo/' . 'memo.md'
+":Dmemoで日毎に別れたメモを開く
+command! Dmemo execute 'edit ~/Desktop/memo/' . strftime('%Y-%m-%d') . '.md'
+":Pmemoでpythonファイルを開く
+command! Pmemo execute 'edit ~/Desktop/memo/' . 'test.py'
+":Wでも保存ができるように(ミスが多いため)
+command! W w
