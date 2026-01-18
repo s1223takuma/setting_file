@@ -35,6 +35,10 @@ command! Memo execute 'edit ~/Desktop/memo/' . 'memo.md'
 command! Dmemo execute 'edit ~/Desktop/memo/' . strftime('%Y-%m-%d') . '.md'
 ":Pmemoでpythonファイルを開く
 command! Pmemo execute 'edit ~/Desktop/memo/' . 'test.py'
+":Asでswiftのプログラムを走らせる(atcoder用)
+command! As w|!swift % < test.txt
+":Apでpythonのプログラムを走らせる(atcoder用)
+command! Ap w|!python3 % < test.txt
 ":Wや:Wqでも保存ができるように(ミスが多いため)
 command! W w
 command! Wq wq
