@@ -9,7 +9,7 @@ set wildmenu
 set showcmd
 
 " キーバインド
-nnoremap <CR> a<br><CR><Esc>
+autocmd FileType html,markdown nnoremap <buffer> <CR> a<br><CR><Esc>
 highlight Comment ctermfg=lightblue
 
 " インデント関連の設定
@@ -35,10 +35,14 @@ command! Memo execute 'edit ~/Desktop/memo/' . 'memo.md'
 command! Dmemo execute 'edit ~/Desktop/memo/' . strftime('%Y-%m-%d') . '.md'
 ":Pmemoでpythonファイルを開く
 command! Pmemo execute 'edit ~/Desktop/memo/' . 'test.py'
-":Asでswiftのプログラムを走らせる(atcoder用)
-command! As w|!swift % < test.txt
-":Apでpythonのプログラムを走らせる(atcoder用)
-command! Ap w|!python3 % < test.txt
+":Pyでpythonファイルを走らせる
+command! Py %w !python3
 ":Wや:Wqでも保存ができるように(ミスが多いため)
 command! W w
 command! Wq wq
+":Asでswiftのプログラムを走らせる(atcoder用)
+command! As w|!swift < test.txt
+":Apでpythonのプログラムを走らせる(atcoder用)
+command! Ap w|!python3 < test.txt
+":Cでファイルをコピーする
+command! C silent %w !pbcopy
