@@ -50,8 +50,8 @@ keymap("n", "Y", "y$", opts)
 -- <Space>q で強制終了
 keymap("n", "<Space>q", ":<C-u>q!<Return>", opts)
 
--- ESC*2 でハイライトやめる
-keymap("n", "<Esc><Esc>", ":<C-u>set nohlsearch<Return>", opts)
+-- ESC でハイライトやめる
+keymap("n", "<Esc>", ":<C-u>set nohlsearch<Return>", opts)
 
 -- Insert --
 -- Press jk fast to exit insert mode
@@ -74,9 +74,4 @@ keymap("v", "<C-p>", '"0p', opts)
 -- Neotreeを使いやすくした
 keymap("n", "<leader>e", ":Neotree toggle<Return>", opts)
 
--- 矢印キーを反応しなくする
-vim.keymap.set("n", "<Up>", "5k")
-vim.keymap.set("n", "<Down>", "5j")
-vim.keymap.set("", "<Left>", "<Nop>")
-vim.keymap.set("", "<Right>", "<Nop>")
 
