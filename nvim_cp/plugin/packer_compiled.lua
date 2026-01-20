@@ -114,20 +114,11 @@ _G.packer_plugins = {
     path = "/Users/sekitakuma/.local/share/nvim/site/pack/packer/start/cmp_luasnip",
     url = "https://github.com/saadparwaiz1/cmp_luasnip"
   },
-  ["jupyter-nvim"] = {
+  ["glow.nvim"] = {
+    config = { "\27LJ\2\n2\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\tglow\frequire\0" },
     loaded = true,
-    path = "/Users/sekitakuma/.local/share/nvim/site/pack/packer/start/jupyter-nvim",
-    url = "https://github.com/kiyoon/jupyter-nvim"
-  },
-  ["jupyter-vim"] = {
-    loaded = true,
-    path = "/Users/sekitakuma/.local/share/nvim/site/pack/packer/start/jupyter-vim",
-    url = "https://github.com/jupyter-vim/jupyter-vim"
-  },
-  ["jupytext.vim"] = {
-    loaded = true,
-    path = "/Users/sekitakuma/.local/share/nvim/site/pack/packer/start/jupytext.vim",
-    url = "https://github.com/kiyoon/jupytext.vim"
+    path = "/Users/sekitakuma/.local/share/nvim/site/pack/packer/start/glow.nvim",
+    url = "https://github.com/ellisonleao/glow.nvim"
   },
   ["lspkind-nvim"] = {
     loaded = true,
@@ -223,15 +214,14 @@ _G.packer_plugins = {
     loaded = true,
     path = "/Users/sekitakuma/.local/share/nvim/site/pack/packer/start/telescope.nvim",
     url = "https://github.com/nvim-telescope/telescope.nvim"
-  },
-  ["vim-slime"] = {
-    loaded = true,
-    path = "/Users/sekitakuma/.local/share/nvim/site/pack/packer/start/vim-slime",
-    url = "https://github.com/jpalardy/vim-slime"
   }
 }
 
 time([[Defining packer_plugins]], false)
+-- Config for: glow.nvim
+time([[Config for glow.nvim]], true)
+try_loadstring("\27LJ\2\n2\0\0\3\0\3\0\0066\0\0\0'\2\1\0B\0\2\0029\0\2\0B\0\1\1K\0\1\0\nsetup\tglow\frequire\0", "config", "glow.nvim")
+time([[Config for glow.nvim]], false)
 
 _G._packer.inside_compile = false
 if _G._packer.needs_bufread == true then

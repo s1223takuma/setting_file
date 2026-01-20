@@ -86,6 +86,13 @@ return packer.startup(function(use)
 
 
   use {
+    "ellisonleao/glow.nvim",
+    config = function()
+      require("glow").setup()
+    end
+  }
+
+  use {
     "nvim-neo-tree/neo-tree.nvim",
     branch = "v3.x",
     requires = {
