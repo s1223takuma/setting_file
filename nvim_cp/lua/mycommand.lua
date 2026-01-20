@@ -14,12 +14,23 @@ vim.api.nvim_create_user_command('Pmemo', function()
   vim.cmd('edit ~/Desktop/memo/test.py')
 end, {})
 
+-- :SmemoでSwiftファイルを開く
+vim.api.nvim_create_user_command('Smemo', function()
+  vim.cmd('edit ~/Desktop/memo/test.swift')
+end, {})
+
 -- :PyでPythonファイルを実行
 vim.api.nvim_create_user_command('Py', function()
   vim.cmd('write')
-  vim.cmd('!python3 %')
+  vim.cmd('split | terminal python3 ' .. vim.fn.expand('%:p'))
+  vim.cmd('startinsert')
 end, {})
 
+-- :SwでSwiftファイルを実行
+vim.api.nvim_create_user_command('Sw', function()
+  vim.cmd('write')
+  vim.cmd('split | terminal swift ' .. vim.fn.expand('%:p'))
+end, {})
 -- :W や :Wq で保存
 vim.api.nvim_create_user_command('W', function()
   vim.cmd('write')
@@ -32,11 +43,11 @@ end, {})
 -- :As で Swift プログラムを実行 (AtCoder用)
 vim.api.nvim_create_user_command('As', function()
   vim.cmd('write')
-  vim.cmd('!swift < test.txt')
+  vim.cmd('!swift % < test.txt')
 end, {})
 
 -- :Ap で Python プログラムを実行 (AtCoder用)
 vim.api.nvim_create_user_command('Ap', function()
   vim.cmd('write')
-  vim.cmd('!python3 < test.txt')
+  vim.cmd('!python3 % < test.txt')
 end, {})

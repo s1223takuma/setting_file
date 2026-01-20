@@ -17,6 +17,10 @@ vim.g.maplocalleader = " "
 --   term_mode = 't',
 --   command_mode = 'c',
 
+-- 縦方向矢印キーを5行飛ぶようにする
+vim.keymap.set("n", "<Up>", "5k")
+vim.keymap.set("n", "<Down>", "5j")
+
 -- Brtter window navigation
 keymap("n", "<C-h>", "<C-w>h", opts)
 keymap("n", "<C-j>", "<C-w>j", opts)
@@ -73,5 +77,3 @@ keymap("v", "<C-p>", '"0p', opts)
 
 -- Neotreeを使いやすくした
 keymap("n", "<leader>e", ":Neotree toggle<Return>", opts)
-
-

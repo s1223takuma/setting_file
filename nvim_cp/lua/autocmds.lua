@@ -40,9 +40,9 @@ vim.api.nvim_create_autocmd({"BufWinLeave", "BufWinLeave"}, {
     end
 
     -- push するか確認
-    local answer = vim.fn.input("Changes detected. Push to GitHub? (y/N): ")
+    local answer = vim.fn.input("変更がありました。githubにpushしますか？(y/N): ")
     if answer:lower() ~= "y" then
-      print("Push skipped.")
+      print("pushしませんでした。")
       return
     end
 

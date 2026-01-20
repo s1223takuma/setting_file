@@ -1,0 +1,2 @@
+let a:[Int] = readLine()!.split(separator: " ").map{Int(String($0))!}
+print(a)
