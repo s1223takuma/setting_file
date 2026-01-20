@@ -33,22 +33,6 @@ keymap("n", "gn", ":tabnew<Return>", opts)
 keymap("n", "gh", "gT", opts)
 keymap("n", "gl", "gt", opts)
 
--- ファイルの一括移動
-keymap("n", "<leader>h", "0", opts)
-keymap("n", "<leader>j", "G", opts)
-keymap("n", "<leader>k", "gg", opts)
-keymap("n", "<leader>l", "$", opts)
-
--- Neotreeとの移動キーを<Space>+fに変更
-keymap("n", "<leader>f", "<Cmd>wincmd h<CR>", opts)
-
--- Split window
-keymap("n", "ss", ":split<Return><C-w>w", opts)
-keymap("n", "sv", ":vsplit<Return><C-w>w", opts)
-
--- Select all
-keymap("n", "<C-a>", "gg<S-v>G", opts)
-
 -- Do not yank with x
 keymap("n", "x", '"_x', opts)
 
@@ -89,9 +73,6 @@ keymap("v", "<C-p>", '"0p', opts)
 
 -- Neotreeを使いやすくした
 keymap("n", "<leader>e", ":Neotree toggle<Return>", opts)
-
--- 全選択
-keymap("n", "<leader>a", "ggVG", opts)
 
 -- 矢印キーを反応しなくする
 vim.keymap.set("n", "<Up>", "5k")
