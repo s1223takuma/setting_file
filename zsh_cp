@@ -144,6 +144,8 @@ alias shell="echo $SHELL"
 alias setsleep="bash ~/sleep.sh"
 alias tmux-source-all='tmux list-panes -s -F "#{session_name}:#{window_index}.#{pane_index}" | xargs -I {} tmux send-keys -t {} "source ~/.zshrc" Enter'
 alias atcoder="mkdir A B C|touch {A/{test.txt,test.swift},B/{test.txt,test,swift},C/{test.txt,test.swift}}"
+alias vim="nvim"
+alias vi="nvim"
 export PATH=$PATH:/Users/sekitakuma/my_commands
 # Load secrets
 if [[ -f "$HOME/.secrets" ]]; then
@@ -163,3 +165,5 @@ function s() {
 }
 export PATH="$HOME/.rbenv/bin:$PATH"
 eval "$(rbenv init - zsh)"
+# zoxide
+eval "$(zoxide init zsh --cmd cd)"
