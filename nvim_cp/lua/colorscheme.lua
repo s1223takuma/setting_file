@@ -14,6 +14,13 @@ local highlights = {
   'LineNr',
   'SignColumn',
   'EndOfBuffer',
+  "highlight",
+  --Neotree
+  "NeoTreeNormal",
+  "NeoTreeNormalNC",
+  "NeoTreeCursorLine",
+  "NeoTreeIndentMarker",
+  "NeoTreeFloatBorder",
 }
 
 for _, group in ipairs(highlights) do

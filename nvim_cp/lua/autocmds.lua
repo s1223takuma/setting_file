@@ -20,3 +20,37 @@ autocmd({ "BufReadPost" }, {
 		vim.api.nvim_exec('silent! normal! g`"zv', false)
 	end,
 })
+
+-- ~/Desktop/memo/*.md を保存・終了時に自動 push
+vim.api.nvim_create_autocmd({"BufWinLeave", "BufWinLeave"}, {
+  pattern = "/Users/sekitakuma/Desktop/memo/*",
+  callback = function()
+    local path = vim.fn.expand("%:p")
+    local git_dir = "/Users/sekitakuma/Desktop/memo"
+    local msg = "Auto-update memo"
+
+    -- 変更があるかチェック
+    local handle = io.popen("cd " .. git_dir .. " && git status --porcelain")
+    local result = handle:read("*a")
+    handle:close()
+
+    if result == "" then
+      print("No changes to commit for: " .. path)
+      return
+    end
+
+    -- push するか確認
+    local answer = vim.fn.input("Changes detected. Push to GitHub? (y/N): ")
+    if answer:lower() ~= "y" then
+      print("Push skipped.")
+      return
+    end
+
+    -- commit & push 実行
+    os.execute("cd " .. git_dir .. " && git add " .. path)
+    os.execute("cd " .. git_dir .. " && git commit -m '" .. msg .. "'")
+    os.execute("cd " .. git_dir .. " && git push")
+
+    print("Pushed: " .. path)
+  end,
+})
