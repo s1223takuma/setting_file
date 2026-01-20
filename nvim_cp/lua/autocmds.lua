@@ -22,7 +22,7 @@ autocmd({ "BufReadPost" }, {
 })
 
 -- ~/Desktop/memo/*.md を保存・終了時に自動 push
-vim.api.nvim_create_autocmd({"BufWinLeave", "BufWinLeave"}, {
+vim.api.nvim_create_autocmd("BufWinLeave", {
   pattern = "/Users/sekitakuma/Desktop/memo/*",
   callback = function()
     local path = vim.fn.expand("%:p")
@@ -49,7 +49,42 @@ vim.api.nvim_create_autocmd({"BufWinLeave", "BufWinLeave"}, {
     -- commit & push 実行
     os.execute("cd " .. git_dir .. " && git add " .. path)
     os.execute("cd " .. git_dir .. " && git commit -m '" .. msg .. "'")
-    os.execute("cd " .. git_dir .. " && git push")
+    os.execute("cd " .. git_dir .. " && git push origin master")
+
+    print("Pushed: " .. path)
+  end,
+})
+
+
+-- ~/Desktop/daily_log/*.md(日記) を保存・終了時に自動 push
+vim.api.nvim_create_autocmd("BufWinLeave", {
+  pattern = "/Users/sekitakuma/Desktop/daily_log/*",
+  callback = function()
+    local path = vim.fn.expand("%:p")
+    local git_dir = "/Users/sekitakuma/Desktop/daily_log"
+    local date = os.date('%Y-%m-%d')
+    local msg = date .. "の日記"
+    -- 変更があるかチェック
+    local handle = io.popen("cd " .. git_dir .. " && git status --porcelain")
+    local result = handle:read("*a")
+    handle:close()
+
+    if result == "" then
+      print("No changes to commit for: " .. path)
+      return
+    end
+
+    -- push するか確認
+    local answer = vim.fn.input("変更がありました。githubにpushしますか？(y/N): ")
+    if answer:lower() ~= "y" then
+      print("pushしませんでした。")
+      return
+    end
+
+    -- commit & push 実行
+    os.execute("cd " .. git_dir .. " && git add .")
+    os.execute("cd " .. git_dir .. " && git commit -m '" .. msg .. "'")
+    os.execute("cd " .. git_dir .. " && git push origin master")
 
     print("Pushed: " .. path)
   end,

@@ -9,6 +9,12 @@ vim.api.nvim_create_user_command('Dmemo', function()
   vim.cmd('edit ~/Desktop/memo/' .. date .. '.md')
 end, {})
 
+-- :Dlogで日記を開く(1日1回書けたらいいな)
+vim.api.nvim_create_user_command('Dlog', function()
+  local date = os.date('%Y-%m-%d')
+  vim.cmd('edit ~/Desktop/daily_log/' .. date .. '.md')
+end, {})
+
 -- :PmemoでPythonファイルを開く
 vim.api.nvim_create_user_command('Pmemo', function()
   vim.cmd('edit ~/Desktop/memo/test.py')
