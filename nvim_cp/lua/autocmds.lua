@@ -27,7 +27,6 @@ vim.api.nvim_create_autocmd("BufWinLeave", {
   callback = function()
     local path = vim.fn.expand("%:p")
     local git_dir = "/Users/sekitakuma/Desktop/memo"
-    local msg = "Auto-update memo"
 
     -- 変更があるかチェック
     local handle = io.popen("cd " .. git_dir .. " && git status --porcelain")
@@ -45,7 +44,10 @@ vim.api.nvim_create_autocmd("BufWinLeave", {
       print("pushしませんでした。")
       return
     end
-
+    local msg = vim.fn.input("コミットメッセージを入力してください(空の場合Auto-update memoになります:")
+    if msg:lower() == "" then
+      msg = "Auto-update memo"
+    end
     -- commit & push 実行
     os.execute("cd " .. git_dir .. " && git add " .. path)
     os.execute("cd " .. git_dir .. " && git commit -m '" .. msg .. "'")
