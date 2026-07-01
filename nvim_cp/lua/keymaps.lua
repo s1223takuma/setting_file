@@ -3,7 +3,13 @@ local term_opts = { silent = true }
 
 --local keymap = vim.keymap
 local keymap = vim.api.nvim_set_keymap
+local builtin = require('telescope.builtin')
 
+--telescope
+vim.keymap.set('n', 'ff', builtin.find_files, { desc = 'Telescope find files' })
+vim.keymap.set('n', 'F', builtin.live_grep, { desc = 'Telescope live grep' })
+vim.keymap.set('n', 'fb', builtin.buffers, { desc = 'Telescope buffers' })
+vim.keymap.set('n', 'fh', builtin.help_tags, { desc = 'Telescope help tags' })
 --Remap space as leader key
 keymap("", "<Space>", "<Nop>", opts)
 vim.g.mapleader = " "
@@ -21,11 +27,7 @@ vim.g.maplocalleader = " "
 vim.keymap.set("n", "<Up>", "5k")
 vim.keymap.set("n", "<Down>", "5j")
 
--- Brtter window navigation
-keymap("n", "<C-h>", "<C-w>h", opts)
-keymap("n", "<C-j>", "<C-w>j", opts)
-keymap("n", "<C-k>", "<C-w>k", opts)
-keymap("n", "<C-l>", "<C-w>l", opts)
+-- Brtter window navigation (smart-splits.nvimに移行、plugins.luaで定義)
 
 -- New tab
 keymap("n", "te", ":tabedit", opts)
@@ -34,9 +36,8 @@ keymap("n", "te", ":tabedit", opts)
 keymap("n", "gn", ":tabnew<Return>", opts)
 
 -- move tab
-keymap("n", "gh", "gT", opts)
-keymap("n", "gl", "gt", opts)
-
+keymap("n", "<Tab>", ":bnext<CR>", { silent = true })
+keymap("n", "<S-Tab>", ":bprev<CR>", { silent = true })
 -- Do not yank with x
 keymap("n", "x", '"_x', opts)
 
@@ -77,3 +78,28 @@ keymap("v", "<C-p>", '"0p', opts)
 
 -- Neotreeを使いやすくした
 keymap("n", "<leader>e", ":Neotree toggle<Return>", opts)
+
+-- Molten
+local nn = require("notebook-navigator")
+
+vim.keymap.set("n", "<leader>mi", ":MoltenInit python3<CR>")
+
+-- セル実行(カーソル位置の # %% セルをまるごと実行)
+vim.keymap.set("n", "<leader>r", function() nn.run_cell() end, { desc = "Run cell" })
+
+-- セル実行して次のセルへ移動
+vim.keymap.set("n", "<leader>x", function() nn.run_and_move() end, { desc = "Run cell and move" })
+
+-- セル間移動
+vim.keymap.set("n", "]h", function() nn.move_cell("d") end, { desc = "Next cell" })
+vim.keymap.set("n", "[h", function() nn.move_cell("u") end, { desc = "Prev cell" })
+
+-- 行・選択範囲はそのままMoltenでOK
+vim.keymap.set("n", "<leader>rl", ":MoltenEvaluateLine<CR>")
+vim.keymap.set("v", "<leader>rv", ":<C-u>MoltenEvaluateVisual<CR>")
+
+-- 再実行
+vim.keymap.set("n", "<leader>rr", ":MoltenReevaluateCell<CR>")
+
+-- エラーの確認
+vim.keymap.set("n", "<leader>er", vim.diagnostic.open_float, { desc = "Show diagnostic" })

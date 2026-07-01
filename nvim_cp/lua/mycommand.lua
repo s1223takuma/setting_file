@@ -3,6 +3,11 @@ vim.api.nvim_create_user_command('Memo', function()
   vim.cmd('edit ~/Desktop/memo/memo.md')
 end, {})
 
+-- :Memoでメモファイルを開く
+vim.api.nvim_create_user_command('Smemo', function()
+  vim.cmd('edit ~/Desktop/memo/secretmemo.md')
+end, {})
+
 -- :Dmemoで日毎に別れたメモを開く
 vim.api.nvim_create_user_command('Dmemo', function()
   local date = os.date('%Y-%m-%d')
@@ -16,12 +21,12 @@ vim.api.nvim_create_user_command('Dlog', function()
 end, {})
 
 -- :PmemoでPythonファイルを開く
-vim.api.nvim_create_user_command('Pmemo', function()
+vim.api.nvim_create_user_command('P', function()
   vim.cmd('edit ~/Desktop/memo/test.py')
 end, {})
 
 -- :SmemoでSwiftファイルを開く
-vim.api.nvim_create_user_command('Smemo', function()
+vim.api.nvim_create_user_command('S', function()
   vim.cmd('edit ~/Desktop/memo/test.swift')
 end, {})
 
