@@ -1,3 +1,8 @@
+-- =========================
+-- OS判定（Windowsではimage.nvim/diagram.nvimを無効化）
+-- =========================
+local is_windows = vim.loop.os_uname().sysname:match("Windows") ~= nil
+
 return {
   -- =========================
   -- Utility
@@ -237,8 +242,13 @@ return {
       })
     end,
   },
+
+  -- =========================
+  -- 画像・図表表示 (Windowsでは無効化: MSVC/hererocks問題を回避)
+  -- =========================
   {
     "3rd/image.nvim",
+    cond = not is_windows,
     opts = {},
   },
   {
@@ -246,7 +256,10 @@ return {
     build = ":UpdateRemotePlugins",
     init = function()
       vim.g.molten_auto_open_output = false
-      vim.g.molten_image_provider = "image.nvim"
+      -- Windowsではimage.nvimを使わない（未ロードのため）
+      if not is_windows then
+        vim.g.molten_image_provider = "image.nvim"
+      end
     end,
   },
   {
@@ -290,7 +303,7 @@ return {
           "-jar",
           launcher_jar,
           "-configuration",
-          jdtls_path .. "/config_mac", -- Macの場合。Linuxなら config_linux
+          jdtls_path .. (is_windows and "/config_win" or "/config_mac"),
           "-data",
           workspace,
         },
@@ -475,7 +488,7 @@ return {
           alt = { "Q" },
         },
         DEBUG = {
-          icon = "",
+          icon = "",
           color = "error",
         },
         PERF = {
@@ -583,6 +596,7 @@ return {
   },
   {
     "3rd/diagram.nvim",
+    cond = not is_windows,
     dependencies = {
       "3rd/image.nvim",
     },
