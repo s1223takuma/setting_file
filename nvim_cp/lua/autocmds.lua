@@ -3,22 +3,22 @@ local autocmd = vim.api.nvim_create_autocmd -- Create autocommand
 
 -- Remove whitespace on save
 autocmd("BufWritePre", {
-	pattern = "*",
-	command = ":%s/\\s\\+$//e",
+  pattern = "*",
+  command = ":%s/\\s\\+$//e",
 })
 
 -- Don't auto commenting new lines
 autocmd("BufEnter", {
-	pattern = "*",
-	command = "set fo-=c fo-=r fo-=o",
+  pattern = "*",
+  command = "set fo-=c fo-=r fo-=o",
 })
 
 -- Restore cursor location when file is opened
 autocmd({ "BufReadPost" }, {
-	pattern = { "*" },
-	callback = function()
-		vim.api.nvim_exec('silent! normal! g`"zv', false)
-	end,
+  pattern = { "*" },
+  callback = function()
+    vim.api.nvim_exec('silent! normal! g`"zv', false)
+  end,
 })
 
 -- ~/Desktop/memo/*.md を保存・終了時に自動 push
@@ -60,10 +60,10 @@ vim.api.nvim_create_autocmd("BufWinLeave", {
 
 -- ~/Desktop/daily_log/*.md(日記) を保存・終了時に自動 push
 vim.api.nvim_create_autocmd("BufWinLeave", {
-  pattern = "/Users/sekitakuma/Desktop/daily_log/*",
+  pattern = "~/Desktop/daily_log/*",
   callback = function()
     local path = vim.fn.expand("%:p")
-    local git_dir = "/Users/sekitakuma/Desktop/daily_log"
+    local git_dir = "~/Desktop/daily_log"
     local date = os.date('%Y-%m-%d')
     local msg = date .. "の日記"
     -- 変更があるかチェック
