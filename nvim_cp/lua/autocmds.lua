@@ -23,10 +23,10 @@ autocmd({ "BufReadPost" }, {
 
 -- ~/Desktop/memo/*.md を保存・終了時に自動 push
 vim.api.nvim_create_autocmd("BufWinLeave", {
-  pattern = "/Users/sekitakuma/Desktop/memo/*",
+  pattern = "/Desktop/memo/*",
   callback = function()
     local path = vim.fn.expand("%:p")
-    local git_dir = "/Users/sekitakuma/Desktop/memo"
+    local git_dir = "/Desktop/memo"
 
     -- 変更があるかチェック
     local handle = io.popen("cd " .. git_dir .. " && git status --porcelain")

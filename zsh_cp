@@ -132,7 +132,7 @@ export VIRTUAL_ENV_DISABLE_PROMPT=0
 export PYENV_ROOT="$HOME/.pyenv"
 command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
-export PATH="$PATH:/Users/sekitakuma/development/flutter/bin"
+export PATH="$PATH:/development/flutter/bin"
 export PATH="$PATH":"$HOME/.pub-cache/bin"
 alias mywork='cd ~/desktop/project/自主学習'
 alias ll="ls -l"
@@ -146,7 +146,7 @@ alias tmux-source-all='tmux list-panes -s -F "#{session_name}:#{window_index}.#{
 alias atcoder="mkdir A B C|touch {A/{test.txt,test.swift},B/{test.txt,test,swift},C/{test.txt,test.swift}}"
 alias vim="nvim"
 alias vi="nvim"
-export PATH=$PATH:/Users/sekitakuma/my_commands
+export PATH=$PATH:/my_commands
 # Load secrets
 if [[ -f "$HOME/.secrets" ]]; then
   source "$HOME/.secrets"
