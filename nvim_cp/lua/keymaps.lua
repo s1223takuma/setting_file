@@ -29,6 +29,10 @@ vim.keymap.set("n", "<Down>", "5j")
 
 -- Brtter window navigation (smart-splits.nvimに移行、plugins.luaで定義)
 
+-- Flutter tools
+vim.keymap.set("n", "<leader>0", require("telescope").extensions.flutter.commands, { desc = "Open command Flutter" })
+vim.keymap.set("n", "<leader>r", ":FlutterReload<CR>", { silent = true, desc = "Flutter Reload" })
+vim.keymap.set("n", "<leader>R", ":FlutterRestart<CR>", { silent = true, desc = "Flutter Restart" })
 -- New tab
 keymap("n", "te", ":tabedit", opts)
 

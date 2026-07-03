@@ -167,14 +167,15 @@ zsh_cp / tmux_cp.conf / ghostty_cp はWSL2内のUbuntu上でmacOSと同じ手順
 
 #### 主要プラグイン (`plugins.lua`)
 
-| カテゴリ           | プラグイン                                                                                |
-| ------------------ | ----------------------------------------------------------------------------------------- |
-| ファイラー・検索   | oil.nvim, neo-tree.nvim, telescope.nvim                                                   |
-| 開発支援           | nvim-lspconfig, mason.nvim, nvim-cmp, conform.nvim, nvim-treesitter, trouble.nvim         |
-| 編集スピード       | flash.nvim, nvim-surround, Comment.nvim, treesj, nvim-spider                              |
-| Jupyter/ビジュアル | molten-nvim, NotebookNavigator.nvim, image.nvim, diagram.nvim                             |
-| 外観・操作         | nightfox.nvim, barbar.nvim, lualine.nvim, smart-splits.nvim, which-key.nvim, dropbar.nvim |
-| Git連携            | gitsigns.nvim, diffview.nvim, octo.nvim                                                   |
+| カテゴリ           | プラグイン                                                                                          |
+| ------------------ | --------------------------------------------------------------------------------------------------- |
+| ファイラー・検索   | oil.nvim, neo-tree.nvim, telescope.nvim                                                             |
+| 開発支援           | nvim-lspconfig, mason.nvim, nvim-cmp, conform.nvim, nvim-treesitter, trouble.nvim, **lspsaga.nvim** |
+| 実行・デバッグ     | **jaq-nvim**（コード即実行）, **nvim-dap + nvim-dap-ui**（デバッガ）                                |
+| 編集スピード       | flash.nvim, nvim-surround, Comment.nvim, treesj, nvim-spider                                        |
+| Jupyter/ビジュアル | molten-nvim, NotebookNavigator.nvim, image.nvim, diagram.nvim                                       |
+| 外観・操作         | nightfox.nvim, barbar.nvim, lualine.nvim, smart-splits.nvim, which-key.nvim, dropbar.nvim           |
+| Git連携            | gitsigns.nvim, diffview.nvim, octo.nvim                                                             |
 
 ### 3. Zsh & Starship — macOS/Linux/WSL
 
@@ -286,6 +287,38 @@ zsh_cp / tmux_cp.conf / ghostty_cp はWSL2内のUbuntu上でmacOSと同じ手順
 | `Space+hs` / `Space+hr` / `Space+hp` | Hunkのステージ / リセット / プレビュー |
 | `Space+xx`                           | Trouble診断一覧                        |
 | `Space+op` / `Space+oi`              | Octo PR一覧 / Issue一覧                |
+
+### Neovim — コード実行 (jaq-nvim)
+
+| キー      | 動作                                         |
+| --------- | -------------------------------------------- |
+| `Space+j` | カーソルのあるファイルをfloat windowで即実行 |
+
+### Neovim — デバッガ (nvim-dap / nvim-dap-ui)
+
+| キー                                 | 動作                                          |
+| ------------------------------------ | --------------------------------------------- |
+| `Space+dc`                           | Continue（実行/再開）                         |
+| `Space+do` / `Space+di` / `Space+dO` | Step Over / Step Into / Step Out              |
+| `Space+db`                           | ブレークポイントの切り替え                    |
+| `Space+dB`                           | 条件付きブレークポイントを設定                |
+| `Space+dl`                           | ログポイントを設定                            |
+| `Space+du`                           | DAP UIの開閉                                  |
+| `Space+de`                           | 選択範囲/カーソル下の値を評価 (Normal/Visual) |
+
+> Python以外の言語でデバッグしたい場合は、対応する`nvim-dap-*`アダプタ（例: `leoluz/nvim-dap-go`）を`plugins.lua`に追記してください。
+
+### Neovim — LSP UI強化 (Lspsaga)
+
+| キー                  | 動作                           |
+| --------------------- | ------------------------------ |
+| `K`                   | リッチなHover表示              |
+| `Space+1`             | LSP Finder（参照・実装元一覧） |
+| `Space+2`             | Rename                         |
+| `Space+3`             | Code Action                    |
+| `Space+4`             | 現在行の診断を表示             |
+| `Space+5`             | 定義をPeek表示                 |
+| `Space+[` / `Space+]` | 前/次の診断へジャンプ          |
 
 ### Neovim — 独自コマンド
 
