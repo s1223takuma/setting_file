@@ -141,7 +141,7 @@ zsh_cp / tmux_cp.conf / ghostty_cp はWSL2内のUbuntu上でmacOSと同じ手順
 
 ## 📝 各設定のハイライト
 
-### 1. Ghostty Terminal (`ghostty_cp/config`) — macOS/Linux専用
+### 1. Ghostty Terminal (`ghostty_cp/config`) — macOS/Linux専用 主はcmux (`manaflow-ai/cmux`) を使っています。-(macOS専用) 設定ファイルはghosttyのと共通です。
 
 - 背景透過（`opacity = 0.9`）＋すりガラス効果。タイトルバーレスなスマートな外観。
 - `Cmd+Enter`: 下に分割 / `Cmd+Shift+Enter`: 右に分割 / `Cmd+矢印`: ペイン移動 / `Cmd+Shift+矢印`: リサイズ / `Cmd+W`: ペインを閉じる
@@ -208,10 +208,6 @@ Recent commits
 | `F` → `p` | pull                                                                    |
 | `g?`      | 今使えるキー一覧をオーバーレイ表示（迷ったらこれ）                      |
 | `q`       | 画面を閉じる                                                            |
-
-**⚠️ 「addできてる気がしない」となりやすいポイント**
-
-`s`を押しても派手な通知は出ません。**唯一のフィードバックは、対象のファイル行が「Unstaged changes」セクションから消えて「Staged changes」セクションに移動すること**です。これに気づかず「効いてない」と誤解しがちなので、まずセクション間の移動を確認してください。
 
 つまずきやすい原因は主に3つです：
 
@@ -301,7 +297,7 @@ Recent commits
 | `*`                                  | カーソル位置の単語を前方検索                            |
 
 > **補足: `w`/`e`/`b`について**
-> `nvim-spider`により、`camelCase`や`snake_case`の区切りも単語境界として認識するようになっています。素のVimより少ない回数の移動で目的の単語に到達できます（`dw`/`cw`等の組み合わせにも適用されます）。
+> `nvim-spider`により、`camelCase`や`snake_case`の区切りも単語境界として認識するようになっています。素のVimより少ない回数の移動で目的の単語に到達できます（`dw`/`cw`等の組み合わせにも適用されます。ただ、相変わらず日本語には弱いです。）。
 
 ### Neovim — 一般・編集
 
@@ -344,10 +340,11 @@ Recent commits
 | `]c` / `[c`                          | 次/前のHunkへ移動                      |
 | `Space+hs` / `Space+hr` / `Space+hp` | Hunkのステージ / リセット / プレビュー |
 | `Space+xx`                           | Trouble診断一覧                        |
-| `Space+op` / `Space+oi`              | Octo PR一覧 / Issue一覧                |
 | `Space+gg`                           | Neogitを開く（Git Status画面）         |
 | `Space+gc`                           | Neogit: コミット画面を開く             |
 | `Space+gp`                           | Neogit: push                           |
+| `Space+oc`                           | Octo PR作成                            |
+| `Space+op` / `Space+oi`              | Octo PR一覧 / Issue一覧                |
 
 ### Neovim — コード実行 (jaq-nvim)
 
@@ -397,10 +394,10 @@ Recent commits
 ### tmux
 
 | キー                        | 動作                         |
-| --------------------------- | ---------------------------- | ------------- |
+| --------------------------- | ---------------------------- |
 | `Ctrl+a`                    | Prefix                       |
 | `Ctrl+h/j/k/l` (Prefixなし) | ペイン移動                   |
-| `Prefix+                    | `/`Prefix+-`                 | 左右/上下分割 |
+| `Prefix+`/`Prefix+-`        | 左右/上下分割                |
 | `Prefix+r`                  | 設定リロード                 |
 | `Prefix+[` → `v`/`y`        | コピーモード開始/選択/コピー |
 
