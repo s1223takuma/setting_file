@@ -175,7 +175,65 @@ zsh_cp / tmux_cp.conf / ghostty_cp はWSL2内のUbuntu上でmacOSと同じ手順
 | 編集スピード       | flash.nvim, nvim-surround, Comment.nvim, treesj, nvim-spider                                        |
 | Jupyter/ビジュアル | molten-nvim, NotebookNavigator.nvim, image.nvim, diagram.nvim                                       |
 | 外観・操作         | nightfox.nvim, barbar.nvim, lualine.nvim, smart-splits.nvim, which-key.nvim, dropbar.nvim           |
-| Git連携            | gitsigns.nvim, diffview.nvim, octo.nvim                                                             |
+| Git連携            | gitsigns.nvim, diffview.nvim, octo.nvim, **neogit**                                                 |
+
+#### 🌱 Neogitの使い方（add / commit / push をNeovim内で完結）
+
+`Space+gg`（`:Neogit`）を実行すると、専用のステータス画面が開きます。表示は大まかに次のようなセクション構成です。
+
+```text
+Untracked files (1)
+  new_file.py
+
+Unstaged changes (2)
+  modified: plugins.lua
+  modified: keymaps.lua
+
+Staged changes (0)
+
+Recent commits
+  a1b2c3d 前回のコミット
+```
+
+**基本操作（すべて画面上でカーソルを対象の行に正確に乗せてから押す）**
+
+| キー      | 動作                                                                    |
+| --------- | ----------------------------------------------------------------------- |
+| `s`       | カーソル位置のファイル（またはhunk）をステージ（add相当）               |
+| `u`       | ステージ解除（unstage）                                                 |
+| `x`       | 変更を破棄（discard。取り消せないので注意）                             |
+| `Tab`     | ファイルを展開してdiffをインライン表示（hunk単位で`s`できるようになる） |
+| `c` → `c` | コミットメッセージ入力画面を開いてコミット                              |
+| `P` → `p` | push                                                                    |
+| `F` → `p` | pull                                                                    |
+| `g?`      | 今使えるキー一覧をオーバーレイ表示（迷ったらこれ）                      |
+| `q`       | 画面を閉じる                                                            |
+
+**⚠️ 「addできてる気がしない」となりやすいポイント**
+
+`s`を押しても派手な通知は出ません。**唯一のフィードバックは、対象のファイル行が「Unstaged changes」セクションから消えて「Staged changes」セクションに移動すること**です。これに気づかず「効いてない」と誤解しがちなので、まずセクション間の移動を確認してください。
+
+つまずきやすい原因は主に3つです：
+
+1. **カーソル位置がファイル名の行からズレている** — 見出し行（`Unstaged changes (2)`など）や空行の上で`s`を押しても何も起きません。ファイル名の行にきっちり乗せる必要があります。
+2. **`Tab`でhunk展開した状態のまま`s`を押している** — 展開中は`s`が「そのhunkだけ」に対して効きます。ファイル全体をステージしたいなら、展開前（畳んだ状態）で`s`を押してください。
+3. **見た目だけの問題で実は成功している** — 確証を持ちたい場合は、`toggleterm.nvim`（`Ctrl+\`）などで実際に以下を叩いて確認するのが確実です。
+   ```bash
+   git status
+   ```
+   `Changes to be committed:` の下に対象ファイルが出ていればステージ成功です。
+
+**一連の流れの例**
+
+1. `Space+gg` でNeogitを開く
+2. `modified: plugins.lua` の行にカーソルを合わせて `s` → Staged changesへ移動すれば成功
+3. `c` → `c` でコミットメッセージバッファが開く。メッセージを書いて `<C-c><C-c>`（または保存して閉じる）でコミット確定
+4. `P` → `p` でpush
+
+**補足**
+
+- `octo.nvim`（PR/Issue管理）とは役割が別なので共存に問題ありません。Neogitでコミット・push → `Space+oc`でPR作成、という流れで使えます。
+- `diffview`統合を有効にしているので、Neogit画面から差分を開くと使い慣れたdiffview.nvimのUIで表示されます。
 
 ### 3. Zsh & Starship — macOS/Linux/WSL
 
@@ -287,6 +345,9 @@ zsh_cp / tmux_cp.conf / ghostty_cp はWSL2内のUbuntu上でmacOSと同じ手順
 | `Space+hs` / `Space+hr` / `Space+hp` | Hunkのステージ / リセット / プレビュー |
 | `Space+xx`                           | Trouble診断一覧                        |
 | `Space+op` / `Space+oi`              | Octo PR一覧 / Issue一覧                |
+| `Space+gg`                           | Neogitを開く（Git Status画面）         |
+| `Space+gc`                           | Neogit: コミット画面を開く             |
+| `Space+gp`                           | Neogit: push                           |
 
 ### Neovim — コード実行 (jaq-nvim)
 

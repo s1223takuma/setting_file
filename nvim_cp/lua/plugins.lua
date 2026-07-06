@@ -751,4 +751,26 @@ return {
       { "<leader>]", "<cmd>Lspsaga diagnostic_jump_next<CR>",  desc = "Next Diagnostic" },
     },
   },
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "sindrets/diffview.nvim",        -- 既に導入済み。差分表示が統合される
+      "nvim-telescope/telescope.nvim", -- 既に導入済み。ブランチ選択等がTelescopeで出る
+    },
+    cmd = "Neogit",
+    keys = {
+      { "<leader>gg", "<cmd>Neogit<CR>",        desc = "Neogit (Git Status)" },
+      { "<leader>gc", "<cmd>Neogit commit<CR>", desc = "Neogit Commit" },
+      { "<leader>gp", "<cmd>Neogit push<CR>",   desc = "Neogit Push" },
+    },
+    config = function()
+      require("neogit").setup({
+        integrations = {
+          diffview = true, -- 既存のdiffview.nvimと統合
+          telescope = true,
+        },
+      })
+    end,
+  },
 }

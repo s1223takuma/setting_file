@@ -107,3 +107,10 @@ vim.keymap.set("n", "<leader>rr", ":MoltenReevaluateCell<CR>")
 
 -- エラーの確認
 vim.keymap.set("n", "<leader>er", vim.diagnostic.open_float, { desc = "Show diagnostic" })
+
+-- GitHub系
+vim.keymap.set("n", "<leader>gd", function()
+  vim.cmd("Neogit")
+  vim.cmd("vsplit")
+  vim.cmd("Octo pr list")
+end, { desc = "Git Dashboard (Neogit + Octo)" })

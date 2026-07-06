@@ -1,6 +1,14 @@
 local augroup = vim.api.nvim_create_augroup -- Create/get autocommand group
 local autocmd = vim.api.nvim_create_autocmd -- Create autocommand
+-- Insertモードに入ったら自動的に英語入力に切り替え (im-select)
+local en_source = "com.apple.keylayout.ABC" -- ← 上で確認した自分のIDに置き換える
 
+autocmd("InsertLeave", {
+  pattern = "*",
+  callback = function()
+    vim.fn.jobstart({ "im-select", en_source }, { detach = true })
+  end,
+})
 -- Remove whitespace on save
 autocmd("BufWritePre", {
   pattern = "*",
