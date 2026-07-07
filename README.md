@@ -1,17 +1,17 @@
 # Terminal Development Environment Configs (macOS / Windows)
 
 ターミナル環境（Ghostty, Zsh, tmux, Vim, Neovim, Starship）の設定ファイルを一元管理するリポジトリです。
-**メインはmacOSですが、Neovim / Starship / Git 周りはWindowsでも動作するように対応方針を記載しています。**
+macOS を主対象にしていますが、Neovim / Starship / Git は Windows でも使えるように手順を整理しています。
 
 > [!WARNING]
 > **実ファイル管理について**
-> このリポジトリのファイルは、ホームディレクトリ等で**実際に使用されている設定ファイルのコピー**（`_cp` 付き）です。
-> 編集の際は実ファイルを直接編集したのち、本リポジトリへコピーしてコミットしてください。
+> このリポジトリのファイルは、ホームディレクトリ等で**実際に使っている設定ファイルのコピー**（`_cp` 付き）です。
+> 編集するときは実ファイルを直接更新し、その後でこのリポジトリへコピーしてコミットしてください。
 
 > [!NOTE]
 > **Windows利用時の注意**
-> `zsh_cp` / `tmux_cp.conf` / `ghostty_cp/` はUnix系専用です。Windowsで同じ体験を再現したい場合は
-> **WSL2 (Ubuntu)** の利用を推奨します。Neovim単体・Starship単体であればWindowsネイティブでも動作します。
+> `zsh_cp` / `tmux_cp.conf` / `ghostty_cp/` は Unix 系専用です。Windows で同じ構成を再現したい場合は
+> **WSL2 (Ubuntu)** を使うのが最も手堅いです。Neovim 単体・Starship 単体なら Windows ネイティブでも動作します。
 > 詳細は [🪟 Windows対応について](#-windows対応について) を参照してください。
 
 ---
@@ -141,29 +141,29 @@ zsh_cp / tmux_cp.conf / ghostty_cp はWSL2内のUbuntu上でmacOSと同じ手順
 
 ## 📝 各設定のハイライト
 
-### 1. Ghostty Terminal (`ghostty_cp/config`) — macOS/Linux専用 主はcmux (`manaflow-ai/cmux`) を使っています。-(macOS専用) 設定ファイルはghosttyのと共通です。
+### 1. Ghostty Terminal (`ghostty_cp/config`)
 
-- 背景透過（`opacity = 0.9`）＋すりガラス効果。タイトルバーレスなスマートな外観。
+- 背景透過（`opacity = 0.9`）とブラーで、軽いすりガラス風の見た目にしています。
 - `Cmd+Enter`: 下に分割 / `Cmd+Shift+Enter`: 右に分割 / `Cmd+矢印`: ペイン移動 / `Cmd+Shift+矢印`: リサイズ / `Cmd+W`: ペインを閉じる
 
 ### 2. Neovim (`nvim_cp/`)
 
-`lazy.nvim` をパッケージマネージャとした開発・メモ環境です。
+`lazy.nvim` をパッケージマネージャにした開発・メモ環境です。
 
 #### 自動化機能 (`autocmds.lua`)
 
 - 保存時に行末の不要な空白を自動削除
 - ファイルを開くと最後のカーソル位置を復元
-- **自動Gitプッシュ**: `~/Desktop/memo/*` および `~/Desktop/daily_log/*` を編集してバッファを離れると、差分の有無を確認しGitHubへpushするか聞かれる
+- `~/Desktop/memo/*` と `~/Desktop/daily_log/*` を編集してバッファを離れると、差分確認のうえで GitHub へ push するかを尋ねる
 
 #### 独自コマンド (`mycommand.lua` & `keymaps.lua`)
 
-- `:Memo` / `:Smemo` / `:Dmemo` / `:Dlog`: 各種メモ・日記ファイルを開く
-- `:P` / `:S`: テスト用Python/Swiftファイルを開く（`:S`はmacOS専用）
-- `:Py` / `:Sw`: 現在のコードを分割ターミナルで実行（`:Sw`はmacOS専用）
-- `:As` / `:Ap`: `test.txt` を標準入力にしてAtCoder用実行（`:As`はmacOS専用）
-- `ff` / `F` / `fb` / `fh`: Telescopeによるファイル/全文/バッファ/ヘルプ検索
-- **Jupyter風環境**: `molten-nvim` + `notebook-navigator` で `# %%` セルを認識、`<leader>r`で実行、`]h`/`[h`でセル移動、`image.nvim`でプロットをターミナル描画
+- `:Memo` / `:Smemo` / `:Dmemo` / `:Dlog` で各種メモ・日記ファイルを開く
+- `:P` / `:S` でテスト用 Python / Swift ファイルを開く（`:S` は macOS 専用）
+- `:Py` / `:Sw` で現在のコードを分割ターミナルから実行する（`:Sw` は macOS 専用）
+- `:As` / `:Ap` で `test.txt` を標準入力にして AtCoder 用に実行する（`:As` は macOS 専用）
+- `ff` / `F` / `fb` / `fh` で Telescope によるファイル / 全文 / バッファ / ヘルプ検索を行う
+- `molten-nvim` + `notebook-navigator` により `# %%` セルを認識し、`<leader>r` で実行、`]h` / `[h` でセル移動、`image.nvim` でプロットを描画する
 
 #### 主要プラグイン (`plugins.lua`)
 
@@ -177,9 +177,9 @@ zsh_cp / tmux_cp.conf / ghostty_cp はWSL2内のUbuntu上でmacOSと同じ手順
 | 外観・操作         | nightfox.nvim, barbar.nvim, lualine.nvim, smart-splits.nvim, which-key.nvim, dropbar.nvim           |
 | Git連携            | gitsigns.nvim, diffview.nvim, octo.nvim, **neogit**                                                 |
 
-#### 🌱 Neogitの使い方（add / commit / push をNeovim内で完結）
+#### 🌱 Neogit の使い方（add / commit / push を Neovim 内で完結）
 
-`Space+gg`（`:Neogit`）を実行すると、専用のステータス画面が開きます。表示は大まかに次のようなセクション構成です。
+`Space+gg`（`:Neogit`）を実行すると、専用のステータス画面が開きます。表示はおおむね次のような構成です。
 
 ```text
 Untracked files (1)
@@ -195,7 +195,7 @@ Recent commits
   a1b2c3d 前回のコミット
 ```
 
-**基本操作（すべて画面上でカーソルを対象の行に正確に乗せてから押す）**
+**基本操作**
 
 | キー      | 動作                                                                    |
 | --------- | ----------------------------------------------------------------------- |
@@ -209,15 +209,59 @@ Recent commits
 | `g?`      | 今使えるキー一覧をオーバーレイ表示（迷ったらこれ）                      |
 | `q`       | 画面を閉じる                                                            |
 
-つまずきやすい原因は主に3つです：
+つまずきやすい原因は主に3つです。
 
-1. **カーソル位置がファイル名の行からズレている** — 見出し行（`Unstaged changes (2)`など）や空行の上で`s`を押しても何も起きません。ファイル名の行にきっちり乗せる必要があります。
-2. **`Tab`でhunk展開した状態のまま`s`を押している** — 展開中は`s`が「そのhunkだけ」に対して効きます。ファイル全体をステージしたいなら、展開前（畳んだ状態）で`s`を押してください。
-3. **見た目だけの問題で実は成功している** — 確証を持ちたい場合は、`toggleterm.nvim`（`Ctrl+\`）などで実際に以下を叩いて確認するのが確実です。
+1. **カーソル位置がファイル名の行からずれている** - 見出し行（`Unstaged changes (2)` など）や空行の上で `s` を押しても反応しません。ファイル名の行に合わせる必要があります。
+2. **`Tab` で hunk を展開した状態のまま `s` を押している** - 展開中の `s` は、その hunk にだけ効きます。ファイル全体をステージしたい場合は、畳んだ状態で `s` を押してください。
+3. **見た目だけの問題で、実は成功している** - 確認したい場合は、`toggleterm.nvim`（`Ctrl+\`）などで実際に以下を実行するのが確実です。
    ```bash
    git status
    ```
    `Changes to be committed:` の下に対象ファイルが出ていればステージ成功です。
+
+---
+
+## 📄 設定ファイルの内容メモ
+
+このリポジトリにある `_cp` 付きファイルの要点を、用途が分かる程度にまとめています。
+
+### `starship_cp.toml`
+
+- `python` のバージョン表示と virtualenv 表示を有効化
+- `git_branch` / `git_status` / `git_metrics` を表示
+- `directory` はフルパス表示、`time` は `MM/DD HH:MM:SS` 形式で表示
+
+### `tmux_cp.conf`
+
+- prefix を `Ctrl+A` に変更
+- `|` と `-` で左右分割・上下分割
+- `mouse on` と `mode-keys vi` を有効化
+- `C-h/j/k/l` で prefix なしのペイン移動
+- `y` で `pbcopy` に送ってコピー
+
+### `zsh_cp`
+
+- Zim を使ってモジュール管理
+- `bindkey -v` で vi キーバインドを有効化
+- `pyenv` / `rbenv` / `zoxide` / `starship` を初期化
+- `ll` / `la` / `lla` / `vim` / `vi` などのエイリアスを定義
+- `s` 関数で Google 検索をブラウザで開く
+
+### `vimrc_cp`
+
+- `nightfox.nvim` を Vim 側で読み込んで配色を設定
+- 行番号表示、`wildmenu`、`showcmd` を有効化
+- HTML / Markdown で `<CR>` を `<br>` 挿入に割り当て
+- `:Memo` / `:Dmemo` / `:Pmemo` / `:Py` / `:As` / `:Ap` / `:C` を定義
+- `set clipboard=unnamed` と `unnamedplus` でクリップボード連携
+
+### `ghostty_cp/config`
+
+- `theme = nightfox` を使用
+- 透過と余白で、軽いすりガラス風の見た目に調整
+- macOS 向けにタイトルバー、マウス挙動、カーソルを設定
+- `Cmd+Enter` 系で分割、`Cmd+矢印` で移動、`Cmd+Shift+矢印` でリサイズ
+- `Cmd+W` で現在のペインを閉じる
 
 **一連の流れの例**
 

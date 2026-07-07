@@ -42,6 +42,10 @@ keymap("n", "gn", ":tabnew<Return>", opts)
 -- move tab
 keymap("n", "<Tab>", ":bnext<CR>", { silent = true })
 keymap("n", "<S-Tab>", ":bprev<CR>", { silent = true })
+-- Vimのタブを閉じる
+keymap("n", "<leader>bt", ":tabclose<CR>", opts)
+-- バッファ（上に並ぶタブ)を閉じる
+keymap("n", "<leader>bd", ":bdelete<CR>", opts)
 -- Do not yank with x
 keymap("n", "x", '"_x', opts)
 

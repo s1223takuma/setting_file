@@ -28,7 +28,14 @@ autocmd({ "BufReadPost" }, {
     vim.api.nvim_exec('silent! normal! g`"zv', false)
   end,
 })
-
+-- Octoのバッファは q でも閉じられるようにする (デフォルトではqに何も割り当てられておらず、
+-- 押しても閉じずにバッファがbarbarのタブに残り続けてしまうため)
+autocmd("FileType", {
+  pattern = { "octo", "octo_panel" },
+  callback = function()
+    vim.keymap.set("n", "q", ":bdelete<CR>", { buffer = true, silent = true })
+  end,
+})
 -- ~/Desktop/memo/*.md を保存・終了時に自動 push
 vim.api.nvim_create_autocmd("BufWinLeave", {
   pattern = "~/Desktop/memo/*",

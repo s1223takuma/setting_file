@@ -238,6 +238,7 @@ return {
         { "<leader>h", group = "Git Hunk" },
         { "<leader>x", group = "診断" },
         { "<leader>s", group = "検索・置換" },
+        { "<leader>q", group = "セッション" },
         { "<leader>o", group = "Octo (GitHub)" },
         { "<leader>d", group = "デバッグ (DAP)" },
       })
@@ -401,6 +402,16 @@ return {
     dependencies = { { 'nvim-tree/nvim-web-devicons' } }
   },
   {
+    "folke/persistence.nvim",
+    event = "BufReadPre",
+    keys = {
+      { "<leader>qs", function() require("persistence").load() end, desc = "Session restore" },
+      { "<leader>ql", function() require("persistence").load({ last = true }) end, desc = "Last session" },
+      { "<leader>qd", function() require("persistence").stop() end, desc = "Stop session save" },
+    },
+    opts = {},
+  },
+  {
     "lewis6991/gitsigns.nvim",
     config = function()
       require("gitsigns").setup({
@@ -518,6 +529,22 @@ return {
         "<cmd>TodoTelescope<CR>",
         desc = "Todo (Telescope)",
       },
+    },
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = {
+      max_lines = 3,
+      separator = nil,
+    },
+  },
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    main = "ibl",
+    opts = {
+      scope = { enabled = true },
+      indent = { char = "│" },
     },
   },
   {
