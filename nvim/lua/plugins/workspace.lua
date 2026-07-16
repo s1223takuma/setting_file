@@ -8,19 +8,30 @@ return {
   {
     "3rd/image.nvim",
     cond = not is_windows,
-    opts = {},
+    opts = {
+      -- Molten のグラフを十分な大きさで表示する
+      max_width = 120,
+      max_height = 30,
+      max_width_window_percentage = math.huge,
+      max_height_window_percentage = math.huge,
+      window_overlap_clear_enabled = true,
+      window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
+    },
   },
   {
     "benlubas/molten-nvim",
-    cmd = {
-      "MoltenInit",
-      "MoltenEvaluateLine",
-      "MoltenEvaluateVisual",
-      "MoltenReevaluateCell",
-    },
+    -- Molten is a Python remote plugin. Lazy-loading its commands can remove
+    -- the registered command while the kernel-selection prompt is open.
+    lazy = false,
     build = ":UpdateRemotePlugins",
     init = function()
       vim.g.molten_auto_open_output = false
+      vim.g.molten_output_win_max_height = 30
+      -- 出力ウィンドウと画像が本文を覆わないよう、そのぶんの行を確保する
+      vim.g.molten_output_virt_lines = true
+      vim.g.molten_virt_text_output = true
+      vim.g.molten_virt_text_max_lines = 30
+      vim.g.molten_image_location = "virt"
       -- Windowsではimage.nvimを使わない（未ロードのため）
       if not is_windows then
         vim.g.molten_image_provider = "image.nvim"

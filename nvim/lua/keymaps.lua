@@ -89,6 +89,30 @@ vim.keymap.set("n", "<leader>nr", function()
   require("notebook-navigator").run_cell()
 end, { desc = "Run cell" })
 
+-- 選択範囲に含まれるセルを、それぞれ独立したMolten出力として実行
+vim.keymap.set("x", "<leader>nr", function()
+  local notebook = require("notebook-navigator")
+  local first_line = math.min(vim.fn.line("v"), vim.fn.line("."))
+  local last_line = math.max(vim.fn.line("v"), vim.fn.line("."))
+  local original_cursor = vim.api.nvim_win_get_cursor(0)
+
+  vim.api.nvim_win_set_cursor(0, { first_line, 0 })
+
+  while true do
+    notebook.run_cell()
+
+    if notebook.move_cell("d") == "last" then
+      break
+    end
+
+    if vim.api.nvim_win_get_cursor(0)[1] > last_line then
+      break
+    end
+  end
+
+  vim.api.nvim_win_set_cursor(0, original_cursor)
+end, { desc = "Run selected cells" })
+
 -- セル実行して次のセルへ移動
 vim.keymap.set("n", "<leader>nx", function()
   require("notebook-navigator").run_and_move()
@@ -104,6 +128,11 @@ vim.keymap.set("v", "<leader>nv", ":<C-u>MoltenEvaluateVisual<CR>", { desc = "Ev
 
 -- 再実行
 vim.keymap.set("n", "<leader>nR", ":MoltenReevaluateCell<CR>", { desc = "Re-evaluate cell" })
+
+-- Moltenの出力ウィンドウに入り、j/kやマウスでスクロールする
+vim.keymap.set("n", "<leader>no", "<cmd>noautocmd MoltenEnterOutput<CR>", { desc = "Open/scroll output" })
+vim.keymap.set("n", "<leader>nh", "<cmd>MoltenHideOutput<CR>", { desc = "Hide output" })
+vim.keymap.set("n", "<leader>nd", "<cmd>MoltenDelete!<CR>", { desc = "Delete all outputs" })
 
 -- エラーの確認
 vim.keymap.set("n", "<leader>er", vim.diagnostic.open_float, { desc = "Show diagnostic" })

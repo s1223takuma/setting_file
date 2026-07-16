@@ -4,7 +4,7 @@
 yabai -m config layout bsp
 
 # 新しいウィンドウは右・下に追加
-yabai -m config window_placement first_child
+yabai -m config window_placement second_child
 
 # フォーカスで透明度の変更
 yabai -m config window_opacity on
@@ -38,3 +38,5 @@ yabai -m rule --add app="^Preview$" manage=off
 yabai -m rule --add app="^プレビュー$" manage=off
 # 電卓
 yabai -m rule --add app="^Calculator$" manage=off
+# アクティビティモニタ
+yabai -m rule --add app="^アクティビティモニタ$" manage=off
