@@ -3,13 +3,11 @@ local term_opts = { silent = true }
 
 --local keymap = vim.keymap
 local keymap = vim.api.nvim_set_keymap
-local builtin = require('telescope.builtin')
-
---telescope
-vim.keymap.set('n', 'ff', builtin.find_files, { desc = 'Telescope find files' })
-vim.keymap.set('n', 'F', builtin.live_grep, { desc = 'Telescope live grep' })
-vim.keymap.set('n', 'fb', builtin.buffers, { desc = 'Telescope buffers' })
-vim.keymap.set('n', 'fh', builtin.help_tags, { desc = 'Telescope help tags' })
+-- Telescope
+vim.keymap.set('n', '<leader>ff', function() require('telescope.builtin').find_files() end, { desc = 'Find files' })
+vim.keymap.set('n', '<leader>fg', function() require('telescope.builtin').live_grep() end, { desc = 'Live grep' })
+vim.keymap.set('n', '<leader>fb', function() require('telescope.builtin').buffers() end, { desc = 'Buffers' })
+vim.keymap.set('n', '<leader>fh', function() require('telescope.builtin').help_tags() end, { desc = 'Help tags' })
 --Remap space as leader key
 keymap("", "<Space>", "<Nop>", opts)
 vim.g.mapleader = " "
@@ -30,9 +28,11 @@ vim.keymap.set("n", "<Down>", "5j")
 -- Brtter window navigation (smart-splits.nvimに移行、plugins.luaで定義)
 
 -- Flutter tools
-vim.keymap.set("n", "<leader>0", require("telescope").extensions.flutter.commands, { desc = "Open command Flutter" })
-vim.keymap.set("n", "<leader>r", ":FlutterReload<CR>", { silent = true, desc = "Flutter Reload" })
-vim.keymap.set("n", "<leader>R", ":FlutterRestart<CR>", { silent = true, desc = "Flutter Restart" })
+vim.keymap.set("n", "<leader>cc", function()
+  require("telescope").extensions.flutter.commands()
+end, { desc = "Flutter commands" })
+vim.keymap.set("n", "<leader>cr", ":FlutterReload<CR>", { silent = true, desc = "Flutter Reload" })
+vim.keymap.set("n", "<leader>cR", ":FlutterRestart<CR>", { silent = true, desc = "Flutter Restart" })
 -- New tab
 keymap("n", "te", ":tabedit", opts)
 
@@ -60,8 +60,8 @@ keymap("n", ";", ":", opts)
 -- 行末までのヤンクにする
 keymap("n", "Y", "y$", opts)
 
--- <Space>q で強制終了
-keymap("n", "<Space>q", ":<C-u>q!<Return>", opts)
+-- <Space>Q で強制終了
+keymap("n", "<Space>Q", ":<C-u>q!<Return>", opts)
 
 -- ESC でハイライトやめる
 keymap("n", "<Esc>", ":<C-u>set nohlsearch<Return>", opts)
@@ -84,30 +84,32 @@ keymap("v", "v", "$h", opts)
 -- 0番レジスタを使いやすくした
 keymap("v", "<C-p>", '"0p', opts)
 
--- Neotreeを使いやすくした
-keymap("n", "<leader>e", ":Neotree toggle<Return>", opts)
+-- Oilを使いやすくした
+keymap("n", "<leader>e", ":Oil<Return>", opts)
 
 -- Molten
-local nn = require("notebook-navigator")
-
-vim.keymap.set("n", "<leader>mi", ":MoltenInit python3<CR>")
+vim.keymap.set("n", "<leader>ni", ":MoltenInit python3<CR>", { desc = "Notebook init" })
 
 -- セル実行(カーソル位置の # %% セルをまるごと実行)
-vim.keymap.set("n", "<leader>r", function() nn.run_cell() end, { desc = "Run cell" })
+vim.keymap.set("n", "<leader>nr", function()
+  require("notebook-navigator").run_cell()
+end, { desc = "Run cell" })
 
 -- セル実行して次のセルへ移動
-vim.keymap.set("n", "<leader>x", function() nn.run_and_move() end, { desc = "Run cell and move" })
+vim.keymap.set("n", "<leader>nx", function()
+  require("notebook-navigator").run_and_move()
+end, { desc = "Run cell and move" })
 
 -- セル間移動
-vim.keymap.set("n", "]h", function() nn.move_cell("d") end, { desc = "Next cell" })
-vim.keymap.set("n", "[h", function() nn.move_cell("u") end, { desc = "Prev cell" })
+vim.keymap.set("n", "]n", function() require("notebook-navigator").move_cell("d") end, { desc = "Next cell" })
+vim.keymap.set("n", "[n", function() require("notebook-navigator").move_cell("u") end, { desc = "Prev cell" })
 
 -- 行・選択範囲はそのままMoltenでOK
-vim.keymap.set("n", "<leader>rl", ":MoltenEvaluateLine<CR>")
-vim.keymap.set("v", "<leader>rv", ":<C-u>MoltenEvaluateVisual<CR>")
+vim.keymap.set("n", "<leader>nl", ":MoltenEvaluateLine<CR>", { desc = "Evaluate line" })
+vim.keymap.set("v", "<leader>nv", ":<C-u>MoltenEvaluateVisual<CR>", { desc = "Evaluate selection" })
 
 -- 再実行
-vim.keymap.set("n", "<leader>rr", ":MoltenReevaluateCell<CR>")
+vim.keymap.set("n", "<leader>nR", ":MoltenReevaluateCell<CR>", { desc = "Re-evaluate cell" })
 
 -- エラーの確認
 vim.keymap.set("n", "<leader>er", vim.diagnostic.open_float, { desc = "Show diagnostic" })

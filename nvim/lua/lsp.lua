@@ -1,5 +1,3 @@
-require("mason").setup()
-
 vim.lsp.enable("lua_ls")
 vim.lsp.enable("pyright")
 vim.lsp.enable("sourcekit")
@@ -23,6 +21,3 @@ vim.lsp.config("emmet_ls", {
     "vue",
   },
 })
-
-vim.lsp.enable("emmet_ls")
-vim.lsp.enable("jdtls")

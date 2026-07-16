@@ -98,6 +98,15 @@ local function build_single_file()
   return exe
 end
 
+local function build()
+  local package_root = find_package_root()
+  if package_root then
+    return build_package(package_root)
+  end
+
+  return build_single_file()
+end
+
 -------------------------------------------------------
 -- DAP
 -------------------------------------------------------

@@ -30,7 +30,9 @@ vim.opt.rtp:prepend(lazypath)
 -- =========================
 -- core plugin loader
 -- =========================
-require("lazy").setup("plugins")
+require("lazy").setup("plugins", {
+  defaults = { lazy = true },
+})
 
 -- =========================
 -- 自前設定（lazyの後）
@@ -40,5 +42,4 @@ require("keymaps")
 require("autocmds")
 require("mycommand")
 require("colorscheme")
-require("cmp-config")
 require("lsp")

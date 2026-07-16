@@ -1,0 +1,44 @@
+# focus
+alt - h : yabai -m window --focus west
+alt - j : yabai -m window --focus south
+alt - k : yabai -m window --focus north
+alt - l : yabai -m window --focus east
+
+# float
+alt - t : yabai -m window --toggle float; yabai -m window --grid 4:4:1:1:2:2
+
+# zoom
+alt - f : yabai -m window --toggle zoom-fullscreen
+
+# rebalance
+alt - b : yabai -m space --balance
+# option+enterで画面の最大化
+
+alt - return : yabai -m window --toggle zoom-fullscreen
+
+# 比率の変更
+
+shift + alt - h : yabai -m window --resize left:-80:0
+
+shift + alt - l : yabai -m window --resize right:80:0
+
+
+
+shift + alt - k : yabai -m window --resize top:0:-80
+
+shift + alt - j : yabai -m window --resize bottom:0:80
+
+
+
+# スペースを3つぐらい作る
+
+alt - 1 : yabai -m space --focus 1
+
+alt - 2 : yabai -m space --focus 2
+
+alt - 3 : yabai -m space --focus 3
+
+# ショートカットでArc cmux discordを開けるように
+alt - a : open -a "Arc"
+alt - c : open -a "cmux"
+alt - d : open -a "Discord"

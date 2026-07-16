@@ -1,0 +1,439 @@
+-- OS-specific plugins are disabled on Windows.
+local is_windows = vim.loop.os_uname().sysname:match("Windows") ~= nil
+
+return {
+  -- =========================
+  -- 画像・図表表示 (Windowsでは無効化: MSVC/hererocks問題を回避)
+  -- =========================
+  {
+    "3rd/image.nvim",
+    cond = not is_windows,
+    opts = {},
+  },
+  {
+    "benlubas/molten-nvim",
+    cmd = {
+      "MoltenInit",
+      "MoltenEvaluateLine",
+      "MoltenEvaluateVisual",
+      "MoltenReevaluateCell",
+    },
+    build = ":UpdateRemotePlugins",
+    init = function()
+      vim.g.molten_auto_open_output = false
+      -- Windowsではimage.nvimを使わない（未ロードのため）
+      if not is_windows then
+        vim.g.molten_image_provider = "image.nvim"
+      end
+    end,
+  },
+  {
+    "GCBallesteros/NotebookNavigator.nvim",
+    dependencies = { "benlubas/molten-nvim" },
+    config = function()
+      require("notebook-navigator").setup({ repl_provider = "molten" })
+    end,
+  },
+  {
+    "mfussenegger/nvim-jdtls",
+    ft = { "java" },
+    config = function()
+      local jdtls = require("jdtls")
+      local home = os.getenv("HOME")
+      local workspace = home .. "/.cache/jdtls/workspace"
+      local root_dir = require("jdtls.setup").find_root({
+        ".git",
+        "mvnw",
+        "gradlew",
+      })
+      if not root_dir then
+        return
+      end
+
+      -- Masonのjdtlsパスを取得
+      local mason_registry = require("mason-registry")
+      local jdtls_path = mason_registry.get_package("jdtls"):get_install_path()
+      local launcher_jar = vim.fn.glob(jdtls_path .. "/plugins/org.eclipse.equinox.launcher_*.jar")
+      if launcher_jar == "" then
+        vim.notify("jdtls launcher jar not found", vim.log.levels.ERROR)
+        return
+      end
+
+      jdtls.start_or_attach({
+        cmd = {
+          "java",
+          "-Declipse.application=org.eclipse.jdt.ls.core.id1",
+          "-Dosgi.bundles.defaultStartLevel=4",
+          "-Declipse.product=org.eclipse.jdt.ls.core.product",
+          "-Dlog.protocol=true",
+          "-Dlog.level=OFF",
+          "-noverify",
+          "-Xmx1G",
+          "-jar",
+          launcher_jar,
+          "-configuration",
+          jdtls_path .. (is_windows and "/config_win" or "/config_mac"),
+          "-data",
+          workspace,
+        },
+        root_dir = root_dir,
+        workspace_folders = { {
+          uri = "file://" .. workspace,
+          name = "workspace",
+        } },
+      })
+    end,
+  },
+  {
+    "sindrets/diffview.nvim",
+    cmd = {
+      "DiffviewOpen",
+      "DiffviewClose",
+      "DiffviewFileHistory",
+    },
+  },
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    ft = "markdown",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+    },
+    opts = {
+      render_modes = { "n", "v", "c", "t" },
+      code = {
+        disable = { "mermaid" },
+      },
+      image = {
+        enabled = false,
+      },
+    },
+  },
+  {
+    "shellRaining/hlchunk.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    opts = {
+      chunk = {
+        enable = true,
+      },
+      indent = {
+        enable = true,
+      },
+      line_num = {
+        enable = true,
+      },
+      blank = {
+        enable = false,
+      },
+    },
+  },
+  {
+    "stevearc/oil.nvim",
+    lazy = false,
+
+    dependencies = {
+      "nvim-mini/mini.icons",
+    },
+
+    opts = {
+      default_file_explorer = true,
+      view_options = {
+        show_hidden = true,
+      },
+    },
+
+    keys = {
+      { "-", "<cmd>Oil<CR>", desc = "Open parent directory" },
+    },
+  },
+  {
+    'Bekaboo/dropbar.nvim',
+    event = { "LspAttach", "BufReadPost" },
+    -- optional, but required for fuzzy finder support
+    dependencies = {
+      'nvim-telescope/telescope-fzf-native.nvim',
+      build = 'make'
+    },
+    config = function()
+      local dropbar_api = require('dropbar.api')
+      vim.keymap.set('n', '<Leader>;', dropbar_api.pick, { desc = 'Pick symbols in winbar' })
+      vim.keymap.set('n', '[;', dropbar_api.goto_context_start, { desc = 'Go to start of current context' })
+      vim.keymap.set('n', '];', dropbar_api.select_next_context, { desc = 'Select next context' })
+    end
+  },
+  {
+    'nvimdev/dashboard-nvim',
+    event = 'VimEnter',
+    config = function()
+      require('dashboard').setup {
+        -- config
+      }
+    end,
+    dependencies = { { 'nvim-tree/nvim-web-devicons' } }
+  },
+  {
+    "folke/persistence.nvim",
+    event = "BufReadPre",
+    keys = {
+      { "<leader>qs", function() require("persistence").load() end,                desc = "Session restore" },
+      { "<leader>ql", function() require("persistence").load({ last = true }) end, desc = "Last session" },
+      { "<leader>qd", function() require("persistence").stop() end,                desc = "Stop session save" },
+    },
+    opts = {},
+  },
+  {
+    "lewis6991/gitsigns.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      require("gitsigns").setup({
+        signs = {
+          add = { text = "│" },
+          change = { text = "│" },
+          delete = { text = "_" },
+          topdelete = { text = "‾" },
+          changedelete = { text = "~" },
+        },
+        on_attach = function(bufnr)
+          local gs = package.loaded.gitsigns
+          local function map(mode, l, r, opts)
+            opts = opts or {}
+            opts.buffer = bufnr
+            vim.keymap.set(mode, l, r, opts)
+          end
+          map("n", "]c", gs.next_hunk, { desc = "Next hunk" })
+          map("n", "[c", gs.prev_hunk, { desc = "Prev hunk" })
+          map("n", "<leader>hs", gs.stage_hunk, { desc = "Stage hunk" })
+          map("n", "<leader>hr", gs.reset_hunk, { desc = "Reset hunk" })
+          map("n", "<leader>hp", gs.preview_hunk, { desc = "Preview hunk" })
+        end,
+      })
+    end,
+  },
+  {
+    "folke/trouble.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    cmd = "Trouble",
+    keys = {
+      { "<leader>xx", "<cmd>Trouble diagnostics toggle<CR>",              desc = "Diagnostics" },
+      { "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<CR>", desc = "Buffer Diagnostics" },
+    },
+    opts = {},
+  },
+  {
+    "akinsho/flutter-tools.nvim",
+    ft = "dart",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "stevearc/dressing.nvim", -- 任意。UIが綺麗になる
+    },
+    config = function()
+      require("flutter-tools").setup({})
+    end,
+  },
+  {
+    "kylechui/nvim-surround",
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+      require("nvim-surround").setup({})
+    end,
+  },
+  {
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {
+      modes = {
+        -- f/F/t/T のデフォルトフックを無効化（Fをlive_grepで使うため競合回避）
+        char = {
+          enabled = false,
+        },
+      },
+    },
+    keys = {
+      { "s", mode = { "n", "x", "o" }, function() require("flash").jump() end,       desc = "Flash" },
+      { "S", mode = { "n", "x", "o" }, function() require("flash").treesitter() end, desc = "Flash Treesitter" },
+      { "r", mode = "o",               function() require("flash").remote() end,     desc = "Remote Flash" },
+    },
+  },
+  {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    event = { "BufReadPost", "BufNewFile" },
+    opts = {
+      keywords = {
+        IDEA = {
+          icon = "💡",
+          color = "hint",
+          alt = { "IDEAS" },
+        },
+        QUESTION = {
+          icon = "?",
+          color = "warning",
+          alt = { "Q" },
+        },
+        DEBUG = {
+          icon = "",
+          color = "error",
+        },
+        PERF = {
+          icon = "⚡",
+          color = "info",
+        },
+        MEMO = {
+          icon = "📝",
+          color = "hint"
+        },
+      },
+    },
+    keys = {
+      {
+        "]t",
+        function() require("todo-comments").jump_next() end,
+        desc = "Next todo comment",
+      },
+      {
+        "[t",
+        function() require("todo-comments").jump_prev() end,
+        desc = "Prev todo comment",
+      },
+      {
+        "<leader>ft",
+        "<cmd>TodoTelescope<CR>",
+        desc = "Todo (Telescope)",
+      },
+    },
+  },
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = {
+      max_lines = 3,
+      separator = nil,
+    },
+  },
+  {
+    "lukas-reineke/indent-blankline.nvim",
+    event = "VeryLazy",
+    main = "ibl",
+    opts = {
+      scope = { enabled = true },
+      indent = { char = "│" },
+    },
+    config = function(_, opts)
+      local hooks = require("ibl.hooks")
+
+      -- Neovim 0.12 can leave LineNr cleared, so ibl cannot derive its
+      -- default IblScope highlight from it. Define it before every setup,
+      -- including setups triggered by a colorscheme change.
+      hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+        vim.api.nvim_set_hl(0, "IblScope", { fg = "#719cd6" })
+      end)
+
+      require("ibl").setup(opts)
+    end,
+  },
+  {
+    "nvim-mini/mini.ai",
+    version = "*",
+    event = "VeryLazy",
+    config = function()
+      require("mini.ai").setup({})
+    end,
+  },
+  {
+    "numToStr/Comment.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("Comment").setup()
+    end,
+  },
+  {
+    "gbprod/substitute.nvim",
+    event = "VeryLazy",
+    config = function()
+      require("substitute").setup()
+    end,
+  },
+  {
+    "yorickpeterse/nvim-pqf",
+    ft = "qf",
+    opts = {},
+  },
+  {
+    "chrisgrieser/nvim-spider",
+    keys = {
+      { "w", "<cmd>lua require('spider').motion('w')<CR>", mode = { "n", "o", "x" } },
+      { "e", "<cmd>lua require('spider').motion('e')<CR>", mode = { "n", "o", "x" } },
+      { "b", "<cmd>lua require('spider').motion('b')<CR>", mode = { "n", "o", "x" } },
+    },
+  },
+  {
+    "mrjones2014/smart-splits.nvim",
+    config = function()
+      local sm = require("smart-splits")
+      -- リサイズ (Alt+hjkl)
+      vim.keymap.set("n", "<A-h>", sm.resize_left)
+      vim.keymap.set("n", "<A-j>", sm.resize_down)
+      vim.keymap.set("n", "<A-k>", sm.resize_up)
+      vim.keymap.set("n", "<A-l>", sm.resize_right)
+      -- 移動 (tmuxペインとシームレスに連携)
+      vim.keymap.set("n", "<C-h>", sm.move_cursor_left)
+      vim.keymap.set("n", "<C-j>", sm.move_cursor_down)
+      vim.keymap.set("n", "<C-k>", sm.move_cursor_up)
+      vim.keymap.set("n", "<C-l>", sm.move_cursor_right)
+    end,
+  },
+  {
+    "MagicDuck/grug-far.nvim",
+    cmd = "GrugFar",
+    opts = {},
+    keys = {
+      { "<leader>sr", "<cmd>GrugFar<CR>", desc = "Search and Replace" },
+    },
+  },
+  {
+    "pwntester/octo.nvim",
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+      "nvim-tree/nvim-web-devicons",
+    },
+    config = function()
+      require("octo").setup()
+    end,
+    cmd = "Octo",
+    keys = {
+      { "<leader>op", "<cmd>Octo pr list<CR>", desc = "PR一覧" },
+      { "<leader>oc", "<cmd>Octo pr create<CR>", desc = "PR作成" },
+      { "<leader>oi", "<cmd>Octo issue list<CR>", desc = "Issue一覧" },
+      { "<leader>oI", "<cmd>Octo issue create<CR>", desc = "Issue作成" },
+      { "<leader>or", "<cmd>Octo review start<CR>", desc = "レビュー開始" },
+      { "<leader>os", "<cmd>Octo search<CR>", desc = "検索" },
+    },
+  },
+  {
+    "3rd/diagram.nvim",
+    cond = not is_windows,
+    dependencies = {
+      "3rd/image.nvim",
+    },
+    config = function()
+      require("diagram").setup({
+        integrations = {
+          require("diagram.integrations.markdown"),
+        },
+        events = {
+          render_buffer = { "InsertLeave", "BufWinEnter" }, -- インサートを抜けたら画像表示
+          clear_buffer = { "InsertEnter", "BufLeave" },     -- インサートに入ったら画像を消す
+        },
+        renderer_options = {
+          mermaid = {
+            theme = "dark",
+            scale = 2,
+          },
+        },
+      })
+    end,
+  },
+
+}

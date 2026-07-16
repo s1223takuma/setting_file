@@ -11,11 +11,12 @@ theme = nightfox
 
 # --- ウィンドウ・透明度 ---
 # 背景を透過させてブラー（すりガラス効果）を入れる
-background-opacity = 0.9
-# background-image = 背景にしたい画像.{png|jpeg}など...
+background-opacity = 0.6
+# 背景画像を使用する場合は、各環境の画像パスを指定する
+# background-image = /path/to/background.jpg
 background-image-fit = cover
 background-image-position = center
-background-image-opacity = 0.1
+background-image-opacity = 0.3
 
 # ウィンドウ内の余白を入れて圧迫感を減らす
 window-padding-x = 10
@@ -40,9 +41,9 @@ clipboard-read = allow
 clipboard-write = allow
 
 # --- キーバインド設定（画面分割） ---
-#  Cmd+Enter で「下に」分割
+# Cmd+Shift+Enter で「下に」分割
 keybind = cmd+shift+enter=new_split:down
-# Cmd+Shift+Enter で「右に」分割
+# Cmd+Enter で「右に」分割
 keybind = cmd+enter=new_split:right
 # Cmd + 矢印キー で分割した画面を「移動」
 keybind = cmd+left=goto_split:left

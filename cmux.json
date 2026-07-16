@@ -1,0 +1,100 @@
+{
+  "$schema" : "https://raw.githubusercontent.com/manaflow-ai/cmux/main/web/data/cmux.schema.json",
+  "customSidebars" : {
+    "renderer" : "inProcess"
+  },
+  "schemaVersion" : 1,
+  "shortcuts" : {
+    "bindings" : {
+      "find" : {
+        "first" : {
+          "command" : false,
+          "control" : false,
+          "key" : "f",
+          "keyCode" : 3,
+          "option" : true,
+          "shift" : false
+        }
+      },
+      "focusDown" : {
+        "first" : {
+          "command" : false,
+          "control" : true,
+          "key" : "j",
+          "keyCode" : 38,
+          "option" : false,
+          "shift" : false
+        }
+      },
+      "focusLeft" : {
+        "first" : {
+          "command" : false,
+          "control" : true,
+          "key" : "h",
+          "keyCode" : 4,
+          "option" : false,
+          "shift" : false
+        }
+      },
+      "focusRight" : {
+        "first" : {
+          "command" : false,
+          "control" : true,
+          "key" : "l",
+          "keyCode" : 37,
+          "option" : false,
+          "shift" : false
+        }
+      },
+      "focusUp" : {
+        "first" : {
+          "command" : false,
+          "control" : true,
+          "key" : "k",
+          "keyCode" : 40,
+          "option" : false,
+          "shift" : false
+        }
+      },
+      "openBrowser" : {
+        "first" : {
+          "command" : true,
+          "control" : false,
+          "key" : "f",
+          "keyCode" : 3,
+          "option" : false,
+          "shift" : false
+        }
+      },
+      "splitDown" : {
+        "first" : {
+          "command" : true,
+          "control" : false,
+          "key" : "\r",
+          "keyCode" : 36,
+          "option" : false,
+          "shift" : true
+        }
+      },
+      "splitRight" : {
+        "first" : {
+          "command" : true,
+          "control" : false,
+          "key" : "\r",
+          "keyCode" : 36,
+          "option" : false,
+          "shift" : false
+        }
+      },
+      "toggleSplitZoom" : {
+        "first" : {
+          "command" : false,
+          "control" : false,
+          "key" : "",
+          "option" : false,
+          "shift" : false
+        }
+      }
+    }
+  }
+}

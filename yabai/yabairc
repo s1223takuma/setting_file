@@ -1,0 +1,40 @@
+#!/usr/bin/env sh
+
+# BSPレイアウト
+yabai -m config layout bsp
+
+# 新しいウィンドウは右・下に追加
+yabai -m config window_placement first_child
+
+# フォーカスで透明度の変更
+yabai -m config window_opacity on
+yabai -m config active_window_opacity 1.0
+yabai -m config normal_window_opacity 0.7
+
+
+# 余白
+yabai -m config top_padding    12
+yabai -m config bottom_padding 12
+yabai -m config left_padding   12
+yabai -m config right_padding  12
+yabai -m config window_gap     12
+
+# マウス操作
+yabai -m config mouse_modifier alt
+yabai -m config mouse_action1 move
+yabai -m config mouse_action2 resize
+
+# フォーカスに追従しない
+yabai -m config focus_follows_mouse off
+
+# Finder
+yabai -m rule --add app="^Finder$" manage=off
+
+# システム設定
+yabai -m rule --add app="^System Settings$" manage=off
+yabai -m rule --add app="^システム設定$" manage=off
+# プレビュー
+yabai -m rule --add app="^Preview$" manage=off
+yabai -m rule --add app="^プレビュー$" manage=off
+# 電卓
+yabai -m rule --add app="^Calculator$" manage=off
