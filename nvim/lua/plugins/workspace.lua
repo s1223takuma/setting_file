@@ -226,6 +226,11 @@ return {
     },
     config = function()
       require("flutter-tools").setup({})
+      vim.keymap.set("n", "<leader>cc", function()
+        require("telescope").extensions.flutter.commands()
+      end, { desc = "Flutter commands" })
+      vim.keymap.set("n", "<leader>cr", "<cmd>FlutterReload<CR>", { desc = "Flutter Reload" })
+      vim.keymap.set("n", "<leader>cR", "<cmd>FlutterRestart<CR>", { desc = "Flutter Restart" })
     end,
   },
   {
