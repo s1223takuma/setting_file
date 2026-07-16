@@ -223,7 +223,6 @@ return {
     ft = "dart",
     dependencies = {
       "nvim-lua/plenary.nvim",
-      "stevearc/dressing.nvim", -- 任意。UIが綺麗になる
     },
     config = function()
       require("flutter-tools").setup({})

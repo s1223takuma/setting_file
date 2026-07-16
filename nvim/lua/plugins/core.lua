@@ -22,6 +22,11 @@ return {
   -- UI
   -- =========================
   { "nvim-tree/nvim-web-devicons" },
+  {
+    "stevearc/dressing.nvim",
+    lazy = false,
+    opts = {},
+  },
   -- =========================
   -- Telescope
   -- =========================
