@@ -40,3 +40,7 @@ yabai -m rule --add app="^プレビュー$" manage=off
 yabai -m rule --add app="^Calculator$" manage=off
 # アクティビティモニタ
 yabai -m rule --add app="^アクティビティモニタ$" manage=off
+# テキストエディット
+yabai -m rule --add app="^テキストエディット$" manage=off
+# メモ
+yabai -m rule --add app="^メモ$" manage=off

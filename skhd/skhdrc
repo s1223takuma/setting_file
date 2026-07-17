@@ -51,5 +51,5 @@ alt - 3 : yabai -m space --focus 3
 
 # ショートカットでArc cmux discordを開けるように
 alt - a : open -a "Arc"
-alt - c : open -a "cmux"
 alt - d : open -a "Discord"
+alt - g : open -a "ghostty"

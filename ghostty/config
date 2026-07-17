@@ -11,7 +11,7 @@ theme = nightfox
 
 # --- ウィンドウ・透明度 ---
 # 背景を透過させてブラー（すりガラス効果）を入れる
-background-opacity = 0.8
+background-opacity = 0.6
 # 背景画像を使用する場合は、各環境の画像パスを指定する
 background-image = ~/desktop/自分のやつ/グレイシア.jpg
 background-image-fit = cover

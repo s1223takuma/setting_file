@@ -81,7 +81,7 @@ pip install pynvim jupyter_client ipykernel --user
 | ImageMagick           | image.nvim / diagram.nvim の画像描画                      | `brew install imagemagick`        | `winget install ImageMagick.ImageMagick`            |
 | glow                  | `:Glow` によるMarkdownプレビュー                          | `brew install glow`               | `winget install charmbracelet.glow`                 |
 | gh (GitHub CLI)       | octo.nvim のPR/Issue操作を安定化                          | `brew install gh`                 | `winget install GitHub.cli`                         |
-| Dart / Flutter        | flutter-tools.nvim、Dart開発                              | Flutter SDKを導入                  | Flutter SDKを導入                                   |
+| Dart / Flutter        | flutter-tools.nvim、Dart開発                              | Flutter SDKを導入                 | Flutter SDKを導入                                   |
 | SourceKit-LSP / Swift | Swift LSP・`:As`/`:Sw`実行コマンド                        | Xcode同梱（追加インストール不要） | **非対応**（Swift for Windowsは実験的、非推奨）     |
 | Ghostty               | ターミナル本体                                            | `brew install --cask ghostty`     | **非対応**（WSL2 + Windows Terminal / WezTerm推奨） |
 | WezTerm               | Kittyグラフィックスプロトコル対応ターミナル(image.nvim用) | `brew install --cask wezterm`     | `winget install wez.wezterm`                        |
@@ -213,16 +213,16 @@ WSL2を使う場合は、Ubuntu内の `~/.config/nvim` と `~/.config/starship.t
 
 #### 主要プラグイン (`plugins/`)
 
-| カテゴリ           | プラグイン                                                                                          |
-| ------------------ | --------------------------------------------------------------------------------------------------- |
-| ファイラー・検索   | oil.nvim, telescope.nvim, telescope-fzf-native, grug-far.nvim                                       |
-| 開発支援           | nvim-lspconfig, mason.nvim, nvim-cmp, conform.nvim, nvim-treesitter, trouble.nvim, lspsaga.nvim     |
-| 実行・デバッグ     | jaq-nvim, nvim-dap, nvim-dap-ui, nvim-dap-python, nvim-dap-virtual-text, flutter-tools.nvim         |
-| 編集スピード       | flash.nvim, nvim-surround, Comment.nvim, treesj, nvim-spider, mini.ai, substitute.nvim              |
-| Jupyter/ビジュアル | molten-nvim, NotebookNavigator.nvim, image.nvim, diagram.nvim, render-markdown.nvim                 |
+| カテゴリ           | プラグイン                                                                                                |
+| ------------------ | --------------------------------------------------------------------------------------------------------- |
+| ファイラー・検索   | oil.nvim, telescope.nvim, telescope-fzf-native, grug-far.nvim                                             |
+| 開発支援           | nvim-lspconfig, mason.nvim, nvim-cmp, conform.nvim, nvim-treesitter, trouble.nvim, lspsaga.nvim           |
+| 実行・デバッグ     | jaq-nvim, nvim-dap, nvim-dap-ui, nvim-dap-python, nvim-dap-virtual-text, flutter-tools.nvim               |
+| 編集スピード       | flash.nvim, nvim-surround, Comment.nvim, treesj, nvim-spider, mini.ai, substitute.nvim                    |
+| Jupyter/ビジュアル | molten-nvim, NotebookNavigator.nvim, image.nvim, diagram.nvim, render-markdown.nvim                       |
 | 外観・操作         | nightfox.nvim, barbar.nvim, lualine.nvim, smart-splits.nvim, which-key.nvim, dropbar.nvim, dashboard-nvim |
-| Git・GitHub連携    | gitsigns.nvim, diffview.nvim, octo.nvim, neogit                                                     |
-| 作業管理           | persistence.nvim, todo-comments.nvim, toggleterm.nvim                                               |
+| Git・GitHub連携    | gitsigns.nvim, diffview.nvim, octo.nvim, neogit                                                           |
+| 作業管理           | persistence.nvim, todo-comments.nvim, toggleterm.nvim                                                     |
 
 #### 🌱 Neogit の使い方（add / commit / push を Neovim 内で完結）
 
@@ -361,43 +361,43 @@ Recent commits
 
 ### Neovim — 一般・編集
 
-| キー              | 動作                                     |
-| ----------------- | ---------------------------------------- |
-| `Space`           | Leaderキー                               |
-| `;`               | `:` (コマンドラインモード)               |
-| `jk` (挿入モード) | `<ESC>`                                  |
-| `x`               | ヤンクせず1文字削除                      |
-| `dw`              | 単語を後方削除                           |
-| `Y`               | 行末までヤンク                           |
-| `Space+l`         | 行末へ移動                               |
-| `Space+Q`         | 強制終了                                 |
-| `Esc`             | 検索ハイライト消去                       |
-| `s` / `S`         | flash.nvim ジャンプ / Treesitterジャンプ |
-| `J`               | ブロックの1行化/複数行化トグル (treesj)  |
-| `Tab` / `Shift+Tab` | 次/前のバッファへ移動                   |
-| `Space+bd` / `Space+bt` | バッファ / Vimタブを閉じる          |
-| `Ctrl+\`          | フロートターミナルを開閉                  |
+| キー                    | 動作                                     |
+| ----------------------- | ---------------------------------------- |
+| `Space`                 | Leaderキー                               |
+| `;`                     | `:` (コマンドラインモード)               |
+| `jk` (挿入モード)       | `<ESC>`                                  |
+| `x`                     | ヤンクせず1文字削除                      |
+| `dw`                    | 単語を後方削除                           |
+| `Y`                     | 行末までヤンク                           |
+| `Space+l`               | 行末へ移動                               |
+| `Space+Q`               | 強制終了                                 |
+| `Esc`                   | 検索ハイライト消去                       |
+| `s` / `S`               | flash.nvim ジャンプ / Treesitterジャンプ |
+| `J`                     | ブロックの1行化/複数行化トグル (treesj)  |
+| `Tab` / `Shift+Tab`     | 次/前のバッファへ移動                    |
+| `Space+bd` / `Space+bt` | バッファ / Vimタブを閉じる               |
+| `Ctrl+\`                | フロートターミナルを開閉                 |
 
 ### Neovim — ウィンドウ・コード移動
 
-| キー | 動作 |
-| --- | --- |
-| `Ctrl+h/j/k/l` | 左/下/上/右のウィンドウへ移動 |
-| `Alt+h/j/k/l` | ウィンドウをリサイズ |
-| `gd` / `gD` | 定義 / 宣言へ移動 |
-| `gr` / `gi` | 参照一覧 / 実装へ移動 |
-| `Space+li` | inlay hintの表示切り替え |
-| `Space+;` | dropbarで現在のシンボルを選択 |
-| `[;` / `];` | 現在のコンテキスト先頭 / 次のコンテキスト |
+| キー           | 動作                                      |
+| -------------- | ----------------------------------------- |
+| `Ctrl+h/j/k/l` | 左/下/上/右のウィンドウへ移動             |
+| `Alt+h/j/k/l`  | ウィンドウをリサイズ                      |
+| `gd` / `gD`    | 定義 / 宣言へ移動                         |
+| `gr` / `gi`    | 参照一覧 / 実装へ移動                     |
+| `Space+li`     | inlay hintの表示切り替え                  |
+| `Space+;`      | dropbarで現在のシンボルを選択             |
+| `[;` / `];`    | 現在のコンテキスト先頭 / 次のコンテキスト |
 
 ### Neovim — ファイラー・検索
 
-| キー                     | 動作                                                |
-| ------------------------ | --------------------------------------------------- |
+| キー                                              | 動作                                                |
+| ------------------------------------------------- | --------------------------------------------------- |
 | `Space+ff` / `Space+fg` / `Space+fb` / `Space+fh` | ファイル検索 / 全文検索 / バッファ検索 / ヘルプ検索 |
-| `-` / `Space+e`                                     | oil.nvim起動                                        |
-| `Space+ft`                                          | TODOコメントをTelescopeで検索                       |
-| `Space+sr`                                          | プロジェクト内の検索・置換                           |
+| `-` / `Space+e`                                   | oil.nvim起動                                        |
+| `Space+ft`                                        | TODOコメントをTelescopeで検索                       |
+| `Space+sr`                                        | プロジェクト内の検索・置換                          |
 
 ### Neovim — Jupyter風環境
 
@@ -419,7 +419,7 @@ Recent commits
 | `Space+gg`                           | Neogitを開く（Git Status画面）         |
 | `Space+gc`                           | Neogit: コミット画面を開く             |
 | `Space+gp`                           | Neogit: push                           |
-| `Space+gd`                           | NeogitとOcto PR一覧を左右に開く         |
+| `Space+gd`                           | NeogitとOcto PR一覧を左右に開く        |
 | `Space+oc`                           | Octo PR作成                            |
 | `Space+op` / `Space+oi`              | Octo PR一覧 / Issue一覧                |
 | `Space+oI`                           | Octo Issue作成                         |
@@ -447,26 +447,26 @@ Recent commits
 
 ### Neovim — フォーマット・Flutter・セッション
 
-| キー | 動作 |
-| --- | --- |
-| `Space+cf` | 現在のバッファをConformで整形 |
-| `Space+cc` | Flutterコマンド一覧（Dartバッファで有効） |
-| `Space+cr` / `Space+cR` | Flutter Reload / Restart |
-| `Space+qs` | 現在のディレクトリのセッションを復元 |
-| `Space+ql` | 最後のセッションを復元 |
-| `Space+qd` | 現在のセッションの自動保存を停止 |
-| `]t` / `[t` | 次/前のTODOコメントへ移動 |
+| キー                    | 動作                                      |
+| ----------------------- | ----------------------------------------- |
+| `Space+cf`              | 現在のバッファをConformで整形             |
+| `Space+cc`              | Flutterコマンド一覧（Dartバッファで有効） |
+| `Space+cr` / `Space+cR` | Flutter Reload / Restart                  |
+| `Space+qs`              | 現在のディレクトリのセッションを復元      |
+| `Space+ql`              | 最後のセッションを復元                    |
+| `Space+qd`              | 現在のセッションの自動保存を停止          |
+| `]t` / `[t`             | 次/前のTODOコメントへ移動                 |
 
 ### Neovim — LSP UI強化 (Lspsaga)
 
-| キー                  | 動作                           |
-| --------------------- | ------------------------------ |
-| `K`                   | リッチなHover表示              |
-| `Space+lf` | LSP Finder（参照・実装元一覧） |
-| `Space+lr` | Rename                         |
-| `Space+la` | Code Action                    |
-| `Space+ld` | 現在行の診断を表示             |
-| `Space+lp` | 定義をPeek表示                 |
+| キー        | 動作                           |
+| ----------- | ------------------------------ |
+| `K`         | リッチなHover表示              |
+| `Space+lf`  | LSP Finder（参照・実装元一覧） |
+| `Space+lr`  | Rename                         |
+| `Space+la`  | Code Action                    |
+| `Space+ld`  | 現在行の診断を表示             |
+| `Space+lp`  | 定義をPeek表示                 |
 | `[d` / `]d` | 前/次の診断へジャンプ          |
 
 ### Neovim — 独自コマンド
@@ -492,15 +492,15 @@ Recent commits
 
 ### yabai / skhd (macOS)
 
-| キー | 動作 |
-| --- | --- |
-| `Option+h/j/k/l` | 左/下/上/右のウィンドウへフォーカス移動 |
-| `Shift+Option+h/j/k/l` | ウィンドウサイズを変更 |
-| `Option+Enter` / `Option+f` | 最大化を切り替え |
-| `Option+t` | フロート表示を切り替えて中央へ配置 |
-| `Option+b` | 現在のSpaceのウィンドウ比率を均等化 |
-| `Option+1/2/3` | Space 1 / 2 / 3へ移動 |
-| `Option+a/c/d` | Arc / cmux / Discordを起動 |
+| キー                        | 動作                                    |
+| --------------------------- | --------------------------------------- |
+| `Option+h/j/k/l`            | 左/下/上/右のウィンドウへフォーカス移動 |
+| `Shift+Option+h/j/k/l`      | ウィンドウサイズを変更                  |
+| `Option+Enter` / `Option+f` | 最大化を切り替え                        |
+| `Option+t`                  | フロート表示を切り替えて中央へ配置      |
+| `Option+b`                  | 現在のSpaceのウィンドウ比率を均等化     |
+| `Option+1/2/3`              | Space 1 / 2 / 3へ移動                   |
+| `Option+a/c/d`              | Arc / cmux / Discordを起動              |
 
 ---
 
