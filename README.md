@@ -1,6 +1,6 @@
 # Terminal Development Environment Configs (macOS / Windows)
 
-Ghostty、Fish、Neovim、Starshipを中心に、macOSの開発環境とウィンドウ操作の設定をまとめたリポジトリです。
+Ghostty、Herdr、Fish、Neovim、Starshipを中心に、macOSの開発環境とウィンドウ操作の設定をまとめたリポジトリです。
 自分用のバックアップであると同時に、友達が環境を再現したり、Neovimの操作を確認したりするためのチートシートとして使えます。
 
 macOSが主対象ですが、Neovim・Starship・GitはWindowsネイティブでも利用できます。
@@ -24,6 +24,7 @@ macOSが主対象ですが、Neovim・Starship・GitはWindowsネイティブで
 .
 ├── README.md
 ├── ghostty/                 # Ghosttyの外観・分割・キーバインド
+├── herdr/                   # Herdr本体とSpreaderのworkspace設定
 ├── fish/                    # FishのPATH・Conda・Starship初期化
 ├── nvim/                    # Neovim (v0.11+) 設定
 │   ├── init.lua
@@ -65,6 +66,7 @@ macOSが主対象ですが、Neovim・Starship・GitはWindowsネイティブで
 | Cコンパイラ + make | treesitter / telescope-fzf-native のビルド                 | Xcode Command Line Tools (`xcode-select --install`) | `winget install Microsoft.VisualStudio.2022.BuildTools` または `winget install MSYS2.MSYS2` |
 | Nerd Font          | アイコン表示 (nvim-web-devicons, lualine等)                | `brew install --cask font-jetbrains-mono-nerd-font` | `winget install DEVCOM.JetBrainsMonoNerdFont`                                               |
 | Starship           | プロンプト                                                 | `brew install starship`                             | `winget install Starship.Starship`                                                          |
+| Herdr              | 永続ペイン・workspace・AI agent管理                        | `brew install herdr`                                | **非対応**                                                                                  |
 
 Python側は追加で以下をpip導入（Molten用REPL連携）:
 
@@ -102,6 +104,16 @@ cargo install ripgrep fd-find starship
 mkdir -p ~/.config
 cp -R ghostty fish nvim yabai skhd karabiner calyx NuGet ~/.config/
 cp starship.toml ~/.config/starship.toml
+
+mkdir -p ~/.config/herdr/plugins/config/herdr-spreader
+cp herdr/config.toml ~/.config/herdr/config.toml
+cp herdr/spreader/config.yaml ~/.config/herdr/plugins/config/herdr-spreader/config.yaml
+
+herdr integration install codex
+herdr plugin install smarzban/herdr-file-viewer --yes
+herdr plugin install persiyanov/herdr-reviewr --yes
+herdr plugin install paulbkim-dev/vim-herdr-navigation --yes
+herdr plugin install yuk1ty/herdr-spreader --yes
 
 mkdir -p ~/.config/cmux ~/.config/gh
 cp cmux.json ~/.config/cmux/cmux.json
@@ -161,6 +173,16 @@ WSL2を使う場合は、Ubuntu内の `~/.config/nvim` と `~/.config/starship.t
 ---
 
 ## 📝 各設定のハイライト
+
+### Herdr (`herdr/`)
+
+- `Ctrl+A`をprefixにした、キーボード中心のタブ・ペイン操作
+- `prefix+e`: ファイルビューア、`prefix+g`: 差分レビュー、`prefix+s`: Spreaderレイアウト適用
+- `Ctrl+h/j/k/l`: Neovim splitとHerdr paneをシームレスに移動
+- Codexの状態通知、セッション復元、日本語IME向けの入力補助を有効化
+- `herdr/spreader/config.yaml`からdotfiles用workspaceを作成し、Neovimとシェルを上下に配置
+
+起動は`herdr`、設定変更後の反映は`herdr server reload-config`です。
 
 ### 1. Ghostty Terminal (`ghostty/config`)
 

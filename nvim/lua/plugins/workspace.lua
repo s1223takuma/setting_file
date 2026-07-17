@@ -391,7 +391,7 @@ return {
       vim.keymap.set("n", "<A-j>", sm.resize_down)
       vim.keymap.set("n", "<A-k>", sm.resize_up)
       vim.keymap.set("n", "<A-l>", sm.resize_right)
-      -- 移動 (tmuxペインとシームレスに連携)
+      -- 移動 (Herdrペインとシームレスに連携)
       vim.keymap.set("n", "<C-h>", sm.move_cursor_left)
       vim.keymap.set("n", "<C-j>", sm.move_cursor_down)
       vim.keymap.set("n", "<C-k>", sm.move_cursor_up)

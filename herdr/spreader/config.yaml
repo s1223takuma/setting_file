@@ -1,0 +1,11 @@
+workspaces:
+  - name: dotfiles
+    root: ~/Desktop/.mac_setting
+    focus: true
+    tabs:
+      - label: editor
+        panes:
+          - command: nvim
+            focus: true
+          - split: down
+            ratio: 0.3

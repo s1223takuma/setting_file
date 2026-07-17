@@ -1,0 +1,127 @@
+# Herdrをキーボード中心で快適に使う設定。
+
+[theme]
+# ghostty の配色と背景画像をそのまま活かす。
+name = "terminal"
+
+[terminal]
+# 新しいペイン・タブは、現在作業中のディレクトリから開く。
+new_cwd = "follow"
+shell_mode = "auto"
+
+[update]
+channel = "stable"
+
+
+[keys]
+# 操作しやすいCtrl+A prefix。
+prefix = "ctrl+a"
+
+
+# タブ・ペインの基本操作。
+new_tab = "prefix+c"
+close_tab = "prefix+shift+x"
+previous_tab = "prefix+p"
+next_tab = "prefix+n"
+switch_tab = "prefix+1..9"
+focus_pane_left = "prefix+h"
+focus_pane_down = "prefix+j"
+focus_pane_up = "prefix+k"
+focus_pane_right = "prefix+l"
+last_pane = "prefix+tab"
+split_vertical = "prefix+|"
+split_horizontal = "prefix+minus"
+close_pane = "prefix+x"
+zoom = "prefix+z"
+resize_mode = "prefix+r"
+reload_config = "prefix+shift+r"
+
+# herdr の workspace / agent をすばやく扱う。
+workspace_picker = "prefix+w"
+new_workspace = "prefix+shift+n"
+new_worktree = "prefix+shift+g"
+previous_workspace = "prefix+left"
+next_workspace = "prefix+right"
+previous_agent = "prefix+up"
+next_agent = "prefix+down"
+toggle_sidebar = "prefix+b"
+
+# プラグイン系
+[[keys.command]]
+key = "prefix+e"
+type = "plugin_action"
+command = "herdr-file-viewer.open-file-viewer"
+description = "Open file viewer"
+[[keys.command]]
+key = "prefix+shift+e"
+type = "shell"
+command = "herdr plugin action invoke open-file-viewer-tab --plugin herdr-file-viewer"
+[[keys.command]]
+key = "prefix+g"
+type = "shell"
+command = "herdr plugin action invoke toggle --plugin persiyanov.reviewr"
+description = "Toggle diff review sidebar"
+[[keys.command]]
+key = "prefix+s"
+type = "plugin_action"
+command = "herdr-spreader.apply"
+description = "Apply workspace layout"
+[[keys.command]]
+key = "ctrl+h"
+type = "shell"
+command = "herdr plugin action invoke left --plugin vim-herdr-navigation"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "shell"
+command = "herdr plugin action invoke down --plugin vim-herdr-navigation"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "shell"
+command = "herdr plugin action invoke up --plugin vim-herdr-navigation"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "shell"
+command = "herdr plugin action invoke right --plugin vim-herdr-navigation"
+[ui]
+agent_panel_sort = "spaces"
+sidebar_width = 22
+sidebar_collapsed_mode = "compact"
+mouse_capture = true
+copy_on_select = false
+confirm_close = true
+prompt_new_tab_name = false
+pane_borders = true
+pane_gaps = false
+show_agent_labels_on_pane_borders = true
+hide_tab_bar_when_single_tab = true
+
+[ui.toast]
+# agent が完了・入力待ちになったら macos 通知を出す。
+delivery = "system"
+delay_seconds = 2
+
+[ui.toast.clipboard]
+enabled = true
+position = "bottom-center"
+
+[ui.sound]
+# デスクトップ通知だけにして、音は鳴らさない。
+enabled = false
+
+[session]
+resume_agents_on_restore = true
+
+[experimental]
+# 再起動後もペイン履歴を復元する。
+pane_history = true
+# 日本語 ime のまま prefix を押してもコマンドを認識しやすくする。
+switch_ascii_input_source_in_prefix = true
+reveal_hidden_cursor_for_cjk_ime = true
+cjk_ime_agents = ["codex", "claude", "gemini", "opencode"]
+cjk_ime_cursor_shape = "steady_block"
+
+[advanced]
+scrollback_limit_bytes = 50000000
