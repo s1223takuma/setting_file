@@ -2,7 +2,7 @@
 
 [theme]
 # ghostty の配色と背景画像をそのまま活かす。
-name = "terminal"
+# name = "terminal"
 
 [terminal]
 # 新しいペイン・タブは、現在作業中のディレクトリから開く。
