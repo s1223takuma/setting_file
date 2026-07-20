@@ -38,7 +38,7 @@ reload_config = "prefix+shift+r"
 navigator="prefix+w"
 
 # herdr の workspace / agent をすばやく扱う。
-workspace_picker = "prefix+w"
+# workspace_picker = "prefix+w"
 new_workspace = "prefix+shift+n"
 new_worktree = "prefix+shift+g"
 previous_workspace = "prefix+left"
@@ -72,8 +72,17 @@ type = "popup"
 command = "yazi"
 width = "80%"
 height = "80%"
-
-
+# Todo
+[[keys.command]]
+key = "prefix+t"
+type = "plugin_action"
+command = "herdr-todo.open"
+description = "Open TODO"
+[[keys.command]]
+key = "prefix+alt+t"
+type = "plugin_action"
+command = "herdr-todo.restart-all"
+description = "Restart TODOs in all workspaces"
 # システムモニター
 [[keys.command]]
 key = "prefix+shift+b"
