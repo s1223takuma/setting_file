@@ -50,14 +50,16 @@ local menu        = "walker"
 -- Or execute your favorite apps at launch like this:
 --
 hl.on("hyprland.start", function ()
-  hl.exec_cmd(terminal)
+  hl.exec_cmd("systemctl --user start hyprland-session.target")
+  hl.exec_cmd("walker --gapplication-service")
   hl.exec_cmd("hyprpaper")
   hl.exec_cmd("waybar")
-  hl.exec_cmd("systemctl --user start hyprland-session.target")
+  hl.exec_cmd("swaync")
+  hl.exec_cmd(terminal)
 end)
 
 hl.on("hyprland.shutdown", function ()
-  hl.exec_cmd("systemctl --user stop hyprland-session.target && sleep 0.1")
+  hl.execute("systemctl --user stop hyprland-session.target && sleep 0.1")
 end)
 
 -------------------------------
@@ -266,12 +268,14 @@ local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 
 -- Example binds, see https://wiki.hypr.land/Configuring/Basics/Binds/ for more
 hl.bind(mainMod .. " + RETURN", hl.dsp.exec_cmd(terminal))
-local closeWindowBind = hl.bind(mainMod .. " + C", hl.dsp.window.close())
+
+hl.bind(mainMod .. " + SPACE", hl.dsp.exec_cmd(menu))
+local closeWindowBind = hl.bind(mainMod .. " + Q", hl.dsp.window.close())
 -- closeWindowBind:set_enabled(false)
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("command -v hyprshutdown >/dev/null 2>&1 && hyprshutdown || hyprctl dispatch 'hl.dsp.exit()'"))
 hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + V", hl.dsp.window.float({ action = "toggle" }))
-hl.bind(mainMod .. " + R", hl.dsp.exec_cmd(menu))
+hl.bind(mainMod .. " + R", hl.dsp.exec_cmd("hyprctl reload"))
 hl.bind(mainMod .. " + P", hl.dsp.window.pseudo())
 hl.bind(mainMod .. " + J", hl.dsp.layout("togglesplit"))    -- dwindle only
 
