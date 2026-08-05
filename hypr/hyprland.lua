@@ -23,10 +23,10 @@
 
 -- See https://wiki.hypr.land/Configuring/Basics/Monitors/
 hl.monitor({
-    output   = "",
+    output   = "eDP-1",
     mode     = "preferred",
     position = "auto",
-    scale    = "auto",
+    scale    = 1.0,
 })
 
 
@@ -54,6 +54,7 @@ hl.on("hyprland.start", function ()
   hl.exec_cmd("walker --gapplication-service")
   hl.exec_cmd("hyprpaper")
   hl.exec_cmd("waybar")
+  hl.exec_cmd("fcitx5")
   hl.exec_cmd("swaync")
   hl.exec_cmd(terminal)
 end)
@@ -70,7 +71,10 @@ end)
 
 hl.env("XCURSOR_SIZE", "24")
 hl.env("HYPRCURSOR_SIZE", "24")
-
+hl.env("GTK_IM_MODULE", "fcitx")
+hl.env("QT_IM_MODULE", "fcitx")
+hl.env("XMODIFIRES", "@im=fcitx")
+hl.env("SDL_IM_MODULE", "fcitx")
 
 -----------------------
 ----- PERMISSIONS -----
@@ -233,7 +237,7 @@ hl.config({
         kb_layout  = "us",
         kb_variant = "",
         kb_model   = "",
-        kb_options = "",
+        kb_options = "ctrl:nocaps",
         kb_rules   = "",
 
         follow_mouse = 1,
