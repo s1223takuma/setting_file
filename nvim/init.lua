@@ -43,3 +43,8 @@ require("autocmds")
 require("mycommand")
 require("colorscheme")
 require("lsp")
+
+-- Neovide
+if vim.g.neovide then
+  vim.g.neovide_opacity = 0.7
+end

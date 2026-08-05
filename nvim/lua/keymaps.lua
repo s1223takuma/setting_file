@@ -131,6 +131,7 @@ vim.keymap.set("n", "<leader>nR", ":MoltenReevaluateCell<CR>", { desc = "Re-eval
 
 -- Moltenの出力ウィンドウに入り、j/kやマウスでスクロールする
 vim.keymap.set("n", "<leader>no", "<cmd>noautocmd MoltenEnterOutput<CR>", { desc = "Open/scroll output" })
+vim.keymap.set("n", "<leader>np", "<cmd>MoltenImagePopup<CR>", { desc = "Open output image" })
 vim.keymap.set("n", "<leader>nh", "<cmd>MoltenHideOutput<CR>", { desc = "Hide output" })
 vim.keymap.set("n", "<leader>nd", "<cmd>MoltenDelete!<CR>", { desc = "Delete all outputs" })
 

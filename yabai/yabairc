@@ -44,3 +44,5 @@ yabai -m rule --add app="^アクティビティモニタ$" manage=off
 yabai -m rule --add app="^テキストエディット$" manage=off
 # メモ
 yabai -m rule --add app="^メモ$" manage=off
+# Neovide
+yabai -m rule --add app="^Neovide$" manage=off

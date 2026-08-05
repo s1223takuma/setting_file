@@ -8,7 +8,14 @@ return {
   {
     "3rd/image.nvim",
     cond = not is_windows,
+    -- magick_cli uses the system ImageMagick binary and does not need LuaRocks.
+    build = false,
     opts = {
+      -- Ghostty supports the Kitty graphics protocol.  Keep both the backend
+      -- and processor explicit so Molten does not depend on auto-detection.
+      backend = "kitty",
+      processor = "magick_cli",
+      integrations = {},
       -- Molten のグラフを十分な大きさで表示する
       max_width = 120,
       max_height = 30,
@@ -20,6 +27,7 @@ return {
   },
   {
     "benlubas/molten-nvim",
+    dependencies = not is_windows and { "3rd/image.nvim" } or nil,
     -- Molten is a Python remote plugin. Lazy-loading its commands can remove
     -- the registered command while the kernel-selection prompt is open.
     lazy = false,
@@ -31,7 +39,9 @@ return {
       vim.g.molten_output_virt_lines = true
       vim.g.molten_virt_text_output = true
       vim.g.molten_virt_text_max_lines = 30
-      vim.g.molten_image_location = "virt"
+      vim.g.molten_image_location = "both"
+      -- Herdr does not reliably forward Kitty graphics; use the macOS image viewer there.
+      vim.g.molten_auto_image_popup = vim.env.HERDR_ENV == "1"
       -- Windowsではimage.nvimを使わない（未ロードのため）
       if not is_windows then
         vim.g.molten_image_provider = "image.nvim"
@@ -41,6 +51,7 @@ return {
   {
     "GCBallesteros/NotebookNavigator.nvim",
     dependencies = { "benlubas/molten-nvim" },
+    event = "VeryLazy",
     config = function()
       require("notebook-navigator").setup({ repl_provider = "molten" })
     end,
@@ -51,15 +62,20 @@ return {
     config = function()
       local jdtls = require("jdtls")
       local home = os.getenv("HOME")
-      local workspace = home .. "/.cache/jdtls/workspace"
       local root_dir = require("jdtls.setup").find_root({
         ".git",
+        "pom.xml",
+        "build.gradle",
+        "build.gradle.kts",
         "mvnw",
         "gradlew",
       })
       if not root_dir then
-        return
+        -- Still provide Java language features for a standalone .java file.
+        root_dir = vim.fn.getcwd()
       end
+      -- JDTLS workspaces cannot safely be shared by unrelated projects.
+      local workspace = home .. "/.cache/jdtls/" .. vim.fn.sha256(root_dir):sub(1, 16)
 
       -- Masonのjdtlsパスを取得
       local mason_registry = require("mason-registry")
@@ -270,6 +286,60 @@ return {
     },
   },
   {
+    "gbprod/yanky.nvim",
+    dependencies = { "nvim-telescope/telescope.nvim" },
+    opts = {},
+    keys = {
+      { "y", "<Plug>(YankyYank)", mode = { "n", "x" }, desc = "Yank text" },
+      { "p", "<Plug>(YankyPutAfter)", mode = { "n", "x" }, desc = "Put after cursor" },
+      { "P", "<Plug>(YankyPutBefore)", mode = { "n", "x" }, desc = "Put before cursor" },
+      { "gp", "<Plug>(YankyGPutAfter)", mode = { "n", "x" }, desc = "Put after and move cursor" },
+      { "gP", "<Plug>(YankyGPutBefore)", mode = { "n", "x" }, desc = "Put before and move cursor" },
+      { "<C-p>", "<Plug>(YankyPreviousEntry)", desc = "Previous yank entry" },
+      { "<C-n>", "<Plug>(YankyNextEntry)", desc = "Next yank entry" },
+      {
+        "<leader>fy",
+        "<cmd>Telescope yank_history<CR>",
+        mode = { "n", "x" },
+        desc = "Yank history",
+      },
+    },
+    config = function(_, opts)
+      require("yanky").setup(opts)
+      require("telescope").load_extension("yank_history")
+    end,
+  },
+  {
+    "cbochs/grapple.nvim",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    cmd = "Grapple",
+    opts = {
+      scope = "git",
+      icons = true,
+      quick_select = "123456789",
+    },
+    keys = {
+      { "<leader>a", "<cmd>Grapple toggle<CR>", desc = "Pin/unpin current file" },
+      { "<leader>A", "<cmd>Grapple toggle_tags<CR>", desc = "Open pinned files" },
+      { "<leader>1", "<cmd>Grapple select index=1<CR>", desc = "Pinned file 1" },
+      { "<leader>2", "<cmd>Grapple select index=2<CR>", desc = "Pinned file 2" },
+      { "<leader>3", "<cmd>Grapple select index=3<CR>", desc = "Pinned file 3" },
+      { "<leader>4", "<cmd>Grapple select index=4<CR>", desc = "Pinned file 4" },
+      { "]a", "<cmd>Grapple cycle_tags next<CR>", desc = "Next pinned file" },
+      { "[a", "<cmd>Grapple cycle_tags prev<CR>", desc = "Previous pinned file" },
+    },
+  },
+  {
+    "m4xshen/hardtime.nvim",
+    lazy = false,
+    dependencies = { "MunifTanjim/nui.nvim" },
+    opts = {
+      restriction_mode = "hint",
+      disable_mouse = false,
+      max_count = 4,
+    },
+  },
+  {
     "folke/todo-comments.nvim",
     dependencies = { "nvim-lua/plenary.nvim" },
     event = { "BufReadPost", "BufNewFile" },
@@ -384,6 +454,7 @@ return {
   },
   {
     "mrjones2014/smart-splits.nvim",
+    event = "VeryLazy",
     config = function()
       local sm = require("smart-splits")
       -- リサイズ (Alt+hjkl)
@@ -429,6 +500,7 @@ return {
   {
     "3rd/diagram.nvim",
     cond = not is_windows,
+    ft = "markdown",
     dependencies = {
       "3rd/image.nvim",
     },

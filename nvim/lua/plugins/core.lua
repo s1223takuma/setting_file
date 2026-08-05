@@ -27,6 +27,11 @@ return {
     lazy = false,
     opts = {},
   },
+  {
+    "sphamba/smear-cursor.nvim",
+    lazy = false,
+    opts = {},
+  },
   -- =========================
   -- Telescope
   -- =========================
@@ -94,24 +99,7 @@ return {
       })
       vim.lsp.enable("marksman")
 
-      vim.lsp.config("pyright", {
-        settings = {
-          python = {
-            analysis = {
-              diagnosticSeverityOverrides = {
-                reportAttributeAccessIssue = "none",
-              },
-            },
-          },
-        },
-      })
-      vim.lsp.enable("pyright")
-
-      -- JS/TS (GASもこれでOK)
-      vim.lsp.enable("ts_ls")
-
-      -- Dart
-      -- vim.lsp.enable("dartls")
+      -- Individual servers are configured and enabled in lua/lsp.lua.
     end,
   },
 
@@ -120,7 +108,9 @@ return {
   -- =========================
   {
     "williamboman/mason.nvim",
-    cmd = "Mason",
+    -- Mason prepends its bin directory to PATH. Loading it only on :Mason
+    -- leaves every Mason-managed LSP "not executable" during normal editing.
+    lazy = false,
     config = true,
   },
   {
