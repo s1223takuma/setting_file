@@ -23,7 +23,6 @@ local options = {
   undofile = true,
   updatetime = 300,
   writebackup = false,
-  shell = "/bin/zsh",
   backupskip = { "/tmp/*", "/private/tmp/*" },
   expandtab = true,
   shiftwidth = 2,
@@ -49,6 +48,10 @@ local options = {
   splitbelow = true, -- オンのとき、ウィンドウを横分割すると新しいウィンドウはカレントウィンドウの下に開かれる
   splitright = true, -- オのとき、ウィンドウを縦分割すると新しいウィンドウはカレントウィンドウの右に開かれる
 }
+
+if vim.fn.has("win32") == 0 and vim.fn.executable("zsh") == 1 then
+  options.shell = vim.fn.exepath("zsh")
+end
 
 vim.opt.shortmess:append("c")
 

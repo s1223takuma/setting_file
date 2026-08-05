@@ -46,4 +46,6 @@ end
 --end
 
 require("mydap.python")
-require("mydap.swift")
+if vim.uv.os_uname().sysname == "Darwin" then
+  require("mydap.swift")
+end

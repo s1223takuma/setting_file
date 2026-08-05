@@ -30,10 +30,12 @@ vim.api.nvim_create_user_command('S', function()
   vim.cmd('edit ~/Desktop/memo/test.swift')
 end, {})
 
+local python = vim.fn.has('win32') == 1 and 'python' or 'python3'
+
 -- :PyでPythonファイルを実行
 vim.api.nvim_create_user_command('Py', function()
   vim.cmd('write')
-  vim.cmd('split | terminal python3 ' .. vim.fn.expand('%:p'))
+  vim.cmd('split | terminal ' .. python .. ' ' .. vim.fn.shellescape(vim.fn.expand('%:p')))
   vim.cmd('startinsert')
 end, {})
 
@@ -60,5 +62,5 @@ end, {})
 -- :Ap で Python プログラムを実行 (AtCoder用)
 vim.api.nvim_create_user_command('Ap', function()
   vim.cmd('write')
-  vim.cmd('!python3 % < test.txt')
+  vim.cmd('!' .. python .. ' % < test.txt')
 end, {})

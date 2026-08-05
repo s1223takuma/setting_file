@@ -1,9 +1,9 @@
-# Terminal Development Environment Configs (macOS / Windows)
+# Terminal Development Environment Configs (macOS / Linux / Windows)
 
 Ghostty、Herdr、Fish、Neovim、Starshipを中心に、macOSの開発環境とウィンドウ操作の設定をまとめたリポジトリです。
 自分用のバックアップであると同時に、友達が環境を再現したり、Neovimの操作を確認したりするためのチートシートとして使えます。
 
-macOSが主対象ですが、Neovim・Starship・GitはWindowsネイティブでも利用できます。
+設定は対応OSごとの4ディレクトリに分けています。分類はアプリの一般的な対応状況ではなく、**このリポジトリにある設定内容をそのまま使えるOS**を基準にしています。
 
 > [!WARNING]
 > **実ファイル管理について**
@@ -23,28 +23,39 @@ macOSが主対象ですが、Neovim・Starship・GitはWindowsネイティブで
 ```text
 .
 ├── README.md
-├── ghostty/                 # Ghosttyの外観・分割・キーバインド
-├── herdr/                   # Herdr本体とSpreaderのworkspace設定
-├── fish/                    # FishのPATH・Conda・Starship初期化
-├── nvim/                    # Neovim (v0.11+) 設定
-│   ├── init.lua
-│   ├── lazy-lock.json
-│   └── lua/
-│       ├── autocmds.lua
-│       ├── keymaps.lua
-│       ├── lsp.lua
-│       ├── mycommand.lua
-│       ├── mydap/           # Python / Swift / DartのDAP設定
-│       └── plugins/         # core / dev / workspace別のプラグイン定義
-├── starship.toml            # Starshipプロンプト
-├── yabai/                   # macOSウィンドウマネージャ
-├── skhd/                    # yabai操作・アプリ起動ショートカット
-├── karabiner/               # Karabiner-Elements
-├── cmux.json                # cmuxのUI・キーバインド
-├── calyx/                   # Calyxの表示・実行設定
-├── gh/config.yml            # GitHub CLI（認証情報を除く）
-└── NuGet/NuGet.Config       # NuGetパッケージソース
+├── macos-only/              # macOSのみ
+│   ├── yabai/               # macOSウィンドウマネージャ
+│   ├── skhd/                # yabai操作・アプリ起動
+│   ├── karabiner/           # Karabiner-Elements
+│   ├── ghostty/             # macOS用オプション・Cmdキー設定を含む
+│   ├── calyx/               # macOS glass・Apple Emoji設定を含む
+│   └── cmux.json            # cmuxのUI・キーバインド
+├── linux-only/
+│   └── hypr/                # Hyprland（Wayland/Linux）
+├── macos-linux/             # macOSとLinuxの両方
+│   ├── fish/                # Fish・Conda・Starship初期化
+│   └── herdr/               # Herdr本体とSpreader設定
+└── cross-platform/          # macOS・Linux・Windows
+    ├── nvim/                # Neovim (v0.11+) 設定
+    ├── starship.toml        # Starshipプロンプト
+    ├── gh/config.yml        # GitHub CLI（認証情報を除く）
+    ├── NuGet/NuGet.Config   # NuGetパッケージソース
+    └── md-to-pdf/           # Markdown PDF変換（bashランチャーを除く）
 ```
+
+| 分類 | 設定 |
+| --- | --- |
+| macOSのみ | yabai, skhd, Karabiner, Ghostty（現在の設定）, Calyx, cmux |
+| Linuxのみ | Hyprland |
+| macOS / Linux | Fish, Herdr |
+| macOS / Linux / Windows | Neovim, Starship, GitHub CLI, NuGet, Markdown PDF変換Pythonスクリプト |
+
+### 旧パスとの互換性
+
+リポジトリ直下の旧パス（`nvim/`、`fish/`、`yabai/`など）は、新しい分類先への相対シンボリックリンクとして残しています。既存のdotfiles用シンボリックリンクは、そのまま引き続き利用できます。新しく設定する場合は、分類ディレクトリ内の実体を直接参照してください。
+
+> [!NOTE]
+> Ghostty自体はLinuxにも対応しますが、この設定は `macos-*` オプションとCmdキーを使うためmacOS側に置いています。`md-to-pdf/md-to-pdf` はbashランチャーなのでWindowsではPythonスクリプトを直接実行してください。
 
 ---
 
@@ -102,12 +113,14 @@ cargo install ripgrep fd-find starship
 
 ```bash
 mkdir -p ~/.config
-cp -R ghostty fish nvim yabai skhd karabiner calyx NuGet ~/.config/
-cp starship.toml ~/.config/starship.toml
+cp -R macos-only/{ghostty,yabai,skhd,karabiner,calyx} ~/.config/
+cp -R macos-linux/{fish,herdr} ~/.config/
+cp -R cross-platform/{nvim,NuGet} ~/.config/
+cp cross-platform/starship.toml ~/.config/starship.toml
 
 mkdir -p ~/.config/herdr/plugins/config/herdr-spreader
-cp herdr/config.toml ~/.config/herdr/config.toml
-cp herdr/spreader/config.yaml ~/.config/herdr/plugins/config/herdr-spreader/config.yaml
+cp macos-linux/herdr/config.toml ~/.config/herdr/config.toml
+cp macos-linux/herdr/spreader/config.yaml ~/.config/herdr/plugins/config/herdr-spreader/config.yaml
 
 herdr integration install codex
 herdr plugin install smarzban/herdr-file-viewer --yes
@@ -116,8 +129,8 @@ herdr plugin install paulbkim-dev/vim-herdr-navigation --yes
 herdr plugin install yuk1ty/herdr-spreader --yes
 
 mkdir -p ~/.config/cmux ~/.config/gh
-cp cmux.json ~/.config/cmux/cmux.json
-cp gh/config.yml ~/.config/gh/config.yml
+cp macos-only/cmux.json ~/.config/cmux/cmux.json
+cp cross-platform/gh/config.yml ~/.config/gh/config.yml
 ```
 
 既存設定がある場合は、先に `~/.config/nvim` などをバックアップしてください。
@@ -129,11 +142,11 @@ Windowsネイティブでは、NeovimとStarshipを次の場所へ配置でき�
 ```powershell
 # Neovim（設定先: %LOCALAPPDATA%\nvim）
 New-Item -ItemType Directory -Force -Path "$env:LOCALAPPDATA\nvim"
-Copy-Item -Recurse -Force nvim\* "$env:LOCALAPPDATA\nvim\"
+Copy-Item -Recurse -Force cross-platform\nvim\* "$env:LOCALAPPDATA\nvim\"
 
 # Starship（設定先は任意。ここでは %USERPROFILE%\.config）
 New-Item -ItemType Directory -Force -Path "$env:USERPROFILE\.config"
-Copy-Item -Force starship.toml "$env:USERPROFILE\.config\starship.toml"
+Copy-Item -Force cross-platform\starship.toml "$env:USERPROFILE\.config\starship.toml"
 
 # Starshipに設定ファイルの場所を伝える
 [Environment]::SetEnvironmentVariable(
@@ -166,30 +179,30 @@ WSL2を使う場合は、Ubuntu内の `~/.config/nvim` と `~/.config/starship.t
 4. **jdtlsはOSを自動判定**
    Java用設定はWindowsで `config_win`、それ以外で `config_mac` を選びます。Masonからjdtlsを導入してください。
 5. **macOS専用設定はコピー不要**
-   `ghostty/`、`yabai/`、`skhd/`、`karabiner/` はWindowsでは使いません。近いターミナル・シェル環境が必要ならWSL2 + Windows Terminal / WezTermを利用してください。
-6. **Neovimのシェル設定を変更する**
-   `options.lua` は現在 `shell = "/bin/zsh"` です。Windowsネイティブで使う場合はこの行を削除するか、PowerShellなど実在するシェルへ変更してください。
+   `macos-only/` と `linux-only/` 以下の設定はWindowsでは使いません。近いターミナル・シェル環境が必要ならWSL2 + Windows Terminal / WezTermを利用してください。
+6. **Neovimのシェルは自動判定**
+   macOS / Linuxでは利用可能ならzshを使い、WindowsではNeovimの既定シェルを維持します。
 
 ---
 
 ## 📝 各設定のハイライト
 
-### Herdr (`herdr/`)
+### Herdr (`macos-linux/herdr/`)
 
 - `Ctrl+A`をprefixにした、キーボード中心のタブ・ペイン操作
 - `prefix+e`: ファイルビューア、`prefix+g`: 差分レビュー、`prefix+s`: Spreaderレイアウト適用
 - `Ctrl+h/j/k/l`: Neovim splitとHerdr paneをシームレスに移動
 - Codexの状態通知、セッション復元、日本語IME向けの入力補助を有効化
-- `herdr/spreader/config.yaml`からdotfiles用workspaceを作成し、Neovimとシェルを上下に配置
+- `macos-linux/herdr/spreader/config.yaml`からdotfiles用workspaceを作成し、Neovimとシェルを上下に配置
 
 起動は`herdr`、設定変更後の反映は`herdr server reload-config`です。
 
-### 1. Ghostty Terminal (`ghostty/config`)
+### 1. Ghostty Terminal (`macos-only/ghostty/config`)
 
 - `background-opacity = 0.6` と背景画像の透過で見た目を調整しています。
 - `Cmd+Enter`: 右に分割 / `Cmd+Shift+Enter`: 下に分割 / `Cmd+矢印`: ペイン移動 / `Cmd+Shift+矢印`: リサイズ / `Cmd+W`: ペインを閉じる
 
-### 2. Neovim (`nvim/`)
+### 2. Neovim (`cross-platform/nvim/`)
 
 `lazy.nvim` をパッケージマネージャにした開発・メモ環境です。
 
@@ -270,18 +283,18 @@ Recent commits
 
 ## 📄 設定ファイルの内容メモ
 
-### `starship.toml`
+### `cross-platform/starship.toml`
 
 - Python環境、Gitブランチ・状態・差分件数、コマンド実行時間などを表示
 - macOS、Linux、Windowsで共通利用可能
 
-### `fish/config.fish`
+### `macos-linux/fish/config.fish`
 
 - `~/.local/bin` をPATHへ追加
 - Minicondaを初期化
 - 対話シェルでStarshipを初期化
 
-### `ghostty/config`
+### `macos-only/ghostty/config`
 
 - `theme = nightfox`、背景透過、余白を設定
 - `Cmd+Enter` 系で分割、`Cmd+矢印` で移動、`Cmd+Shift+矢印` でリサイズ
@@ -289,11 +302,11 @@ Recent commits
 
 ### macOS操作系
 
-- `yabai/`: ウィンドウ配置、余白、透明度、除外ルール
-- `skhd/`: yabai操作とアプリ起動のショートカット
-- `karabiner/`: Karabiner-Elementsのキー変更
-- `cmux.json`: cmuxのキーバインドとUI
-- `calyx/`: Calyxの表示・実行設定
+- `macos-only/yabai/`: ウィンドウ配置、余白、透明度、除外ルール
+- `macos-only/skhd/`: yabai操作とアプリ起動のショートカット
+- `macos-only/karabiner/`: Karabiner-Elementsのキー変更
+- `macos-only/cmux.json`: cmuxのキーバインドとUI
+- `macos-only/calyx/`: Calyxの表示・実行設定
 
 **一連の流れの例**
 

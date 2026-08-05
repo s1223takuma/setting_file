@@ -16,7 +16,7 @@ return {
             vim = "source %",
           },
           external = {
-            python = "python3 %",
+            python = vim.fn.has("win32") == 1 and "python %" or "python3 %",
             javascript = "node %",
             sh = "sh %",
           },
