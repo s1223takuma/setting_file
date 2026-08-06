@@ -1,0 +1,240 @@
+/* Catppuccin Mocha */
+
+@define-color rosewater #f5e0dc;
+@define-color flamingo #f2cdcd;
+@define-color pink #f5c2e7;
+@define-color mauve #cba6f7;
+@define-color red #f38ba8;
+@define-color maroon #eba0ac;
+@define-color peach #fab387;
+@define-color yellow #f9e2af;
+@define-color green #a6e3a1;
+@define-color teal #94e2d5;
+@define-color sky #89dceb;
+@define-color sapphire #74c7ec;
+@define-color blue #89b4fa;
+@define-color lavender #b4befe;
+
+@define-color text #cdd6f4;
+@define-color subtext1 #bac2de;
+@define-color subtext0 #a6adc8;
+@define-color overlay2 #9399b2;
+@define-color overlay1 #7f849c;
+@define-color overlay0 #6c7086;
+@define-color surface2 #585b70;
+@define-color surface1 #45475a;
+@define-color surface0 #313244;
+@define-color base #1e1e2e;
+@define-color mantle #181825;
+@define-color crust #11111b;
+
+* {
+  border: none;
+  border-radius: 0;
+
+  font-family:
+    "Inconsolata Nerd Font",
+    "Symbols Nerd Font",
+    monospace;
+
+  font-size: 13px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: transparent;
+  color: @text;
+}
+
+/* 独立カプセル共通 */
+
+#custom-launcher,
+#workspaces,
+#mpris,
+#clock,
+#cpu,
+#temperature,
+#memory,
+#bluetooth,
+#network,
+#pulseaudio,
+#battery,
+#tray,
+#custom-notification {
+  background: alpha(@base, 0.86);
+
+  border: 1px solid alpha(@surface2, 0.45);
+  border-radius: 999px;
+
+  padding: 0 12px;
+  margin: 0 3px;
+
+  box-shadow:
+    0 2px 8px alpha(@crust, 0.45);
+}
+
+/* 左端ランチャー */
+
+#custom-launcher {
+  color: @sky;
+  font-size: 16px;
+  padding-left: 13px;
+  padding-right: 13px;
+}
+
+#custom-launcher:hover {
+  background: alpha(@surface0, 0.94);
+  color: @blue;
+}
+
+/* Workspaces */
+
+#workspaces {
+  padding: 0 5px;
+}
+
+#workspaces button {
+  background: transparent;
+  color: @overlay0;
+
+  border-radius: 999px;
+  padding: 0 7px;
+  margin: 3px 1px;
+
+  transition:
+    background 150ms ease,
+    color 150ms ease;
+}
+
+#workspaces button.active {
+  background: @blue;
+  color: @base;
+}
+
+#workspaces button.urgent {
+  background: @red;
+  color: @base;
+}
+
+#workspaces button:hover {
+  background: @surface1;
+  color: @text;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+/* 音楽 */
+
+#mpris {
+  color: @blue;
+  min-width: 180px;
+}
+
+#mpris.paused {
+  color: @overlay1;
+}
+
+/* 中央時計 */
+
+#clock {
+  color: @blue;
+  font-weight: bold;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+/* 右側 */
+
+#cpu {
+  color: @mauve;
+}
+
+#temperature {
+  color: @peach;
+}
+
+#temperature.critical {
+  color: @red;
+}
+
+#memory {
+  color: @yellow;
+}
+
+#bluetooth {
+  color: @sapphire;
+}
+
+#network {
+  color: @sky;
+}
+
+#network.disconnected {
+  color: @red;
+}
+
+#pulseaudio {
+  color: @green;
+}
+
+#pulseaudio.muted {
+  color: @overlay0;
+}
+
+#battery {
+  color: @green;
+}
+
+#battery.charging,
+#battery.plugged {
+  color: @teal;
+}
+
+#battery.warning:not(.charging) {
+  color: @yellow;
+}
+
+#battery.critical:not(.charging) {
+  color: @red;
+}
+
+#tray {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+#custom-notification {
+  color: @lavender;
+  font-size: 15px;
+  padding-left: 13px;
+  padding-right: 13px;
+}
+
+/* ホバー */
+
+#clock:hover,
+#cpu:hover,
+#temperature:hover,
+#memory:hover,
+#bluetooth:hover,
+#network:hover,
+#pulseaudio:hover,
+#battery:hover,
+#custom-notification:hover {
+  background: alpha(@surface0, 0.96);
+}
+
+/* Tooltip */
+
+tooltip {
+  background: alpha(@mantle, 0.97);
+  color: @text;
+
+  border: 1px solid @surface1;
+  border-radius: 12px;
+}
+
+tooltip label {
+  color: @text;
+  padding: 8px;
+}

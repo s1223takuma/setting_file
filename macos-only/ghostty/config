@@ -58,3 +58,9 @@ keybind = cmd+shift+down=resize_split:down,20
 
 # Cmd + W で現在の「ペイン（分割）」を閉じる
 keybind = cmd+w=close_surface
+
+#Linux用
+keybind = super+c=copy_to_clipboard
+keybind = super+v=paste_from_clipboard
+keybind = super+a=select_all
+keybind = super+k=clear_screen
