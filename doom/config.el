@@ -73,6 +73,7 @@
 ;;
 ;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
 ;; they are implemented.
+;; クリップボードの設定
 (setq select-enable-clipboard t)
 
 (unless (display-graphic-p)
@@ -85,3 +86,8 @@
   (setq interprogram-paste-function
         (lambda ()
           (shell-command-to-string "pbpaste"))))
+;; corfuの自動補完をON
+(after! corfu
+  (setq corfu-auto t
+        corfu-auto-prefix 1
+        corfu-auto-delay 0.1))
