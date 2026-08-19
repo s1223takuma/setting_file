@@ -91,3 +91,15 @@
   (setq corfu-auto t
         corfu-auto-prefix 1
         corfu-auto-delay 0.1))
+;;vtermを開くように
+(defun toggle/vterm ()
+  "vtermのtoggle"
+  (interactive)
+  (let ((buffer (get-buffer "*vterm*")))
+    (if (and buffer (get-buffer-window buffer))
+        (delete-window (get-buffer-window buffer))
+      (vterm))))
+
+(map! :leader
+      :desc "Toggle vterm"
+      "o t" #'toggle/vterm)
