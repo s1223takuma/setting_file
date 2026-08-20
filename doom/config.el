@@ -118,3 +118,6 @@
 (after! elfeed
   (setq elfeed-feeds
         '("https://hnrss.org/frontpage")))
+
+;; Neovimで使っている自作キーマップとExコマンド（プラグイン非依存）。
+(load! "vim-keymaps")
