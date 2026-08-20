@@ -1,5 +1,9 @@
 ;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
+;; 日本語環境の設定
 
+(set-language-environment "Japanese")
+(prefer-coding-system 'utf-8)
+(set-default 'buffer-file-coding-system 'utf-8)
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
 
@@ -41,7 +45,14 @@
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
+(after! org
+  (setq org-agenda-files
+        (list (expand-file-name "tasks.org" org-directory)))
 
+  (setq org-capture-templates
+        '(("t" "Todo" entry
+           (file+headline "tasks.org" "Inbox")
+           "* TODO %?\n  %U"))))
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `with-eval-after-load' block, otherwise Doom's defaults may override your
@@ -103,3 +114,7 @@
 (map! :leader
       :desc "Toggle vterm"
       "o t" #'toggle/vterm)
+;;RSSの設定
+(after! elfeed
+  (setq elfeed-feeds
+        '("https://hnrss.org/frontpage")))
