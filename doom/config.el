@@ -128,3 +128,16 @@
              '(alpha . 90))
 ;; テーマ
 (setq doom-theme 'doom-nord)
+
+;; 保存時自動フォーマッタ
+(defun my/python-format-on-save ()
+  (add-hook 'before-save-hook #'lsp-format-buffer nil t))
+
+(add-hook 'python-mode-hook #'my/python-format-on-save)
+(add-hook 'python-ts-mode-hook #'my/python-format-on-save)
+
+;; corfuの設定
+(after! corfu
+  (unless (display-graphic-p)
+    (corfu-terminal-mode +1)))
+
