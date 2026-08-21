@@ -114,7 +114,14 @@
 (map! :leader
       :desc "Toggle vterm"
       "o t" #'toggle/vterm)
-;;RSSの設定
+;; forgeのkeymap
+(after! forge
+  (map! :leader
+        :desc "Forge"
+        "g f" #'forge-dispatch
+        :desc "Forge-merge"
+        "g m" #'forge-merge))
+ ;;RSSの設定
 (after! elfeed
   (setq elfeed-feeds
         '("https://hnrss.org/frontpage")))
@@ -141,3 +148,5 @@
   (unless (display-graphic-p)
     (corfu-terminal-mode +1)))
 
+;; githubの認証系(forgeで使用)
+(setq auth-sources '("~/.authinfo.gpg"))
