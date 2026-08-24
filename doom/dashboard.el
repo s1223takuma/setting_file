@@ -3,6 +3,7 @@
 ;; Doom標準のダッシュボード部品を活かした、個人用スタート画面。
 ;; 外部パッケージは追加せず、Doom/Emacs/有効化済みモジュールのAPIだけを使う。
 
+(require 'cl-lib)
 (require 'seq)
 (require 'subr-x)
 
@@ -78,14 +79,6 @@
 (defvar my/dashboard--cache (make-hash-table :test #'eq)
   "Dashboardの重いデータ取得結果を保持するcache。")
 
-(defvar my/dashboard--open-guard-map
-  (let ((map (make-sparse-keymap)))
-    ;; 画面切替直後に残ったRETや矢印のキーリピートだけを吸収する。
-    (dolist (key '("RET" "<return>" "<up>" "<down>" "<left>" "<right>"))
-      (define-key map (kbd key) #'ignore))
-    map)
-  "Dashboardから項目を開いた直後のキーリピートを防ぐmap。")
-
 (defun my/dashboard--cached (key seconds producer)
   "KEYの値をSECONDS秒だけ保持し、必要ならPRODUCERで再取得する。"
   (let ((cached (gethash key my/dashboard--cache)))
@@ -138,10 +131,104 @@
   (cons (propertize label 'face 'my/dashboard-muted) action))
 
 (defun my/dashboard-capture-task ()
-  "Todo用テンプレートを直接開く。"
+  "Todo用の通常Capture画面を開く。"
   (interactive)
-  ;; Insert状態への遷移はDoomのorg-capture-mode-hookに任せる。
   (org-capture nil "t"))
+
+(defvar-local my/dashboard--capture-point-marker nil
+  "Capture内で最後にコマンドが正常終了した位置。")
+
+(defvar-local my/dashboard--capture-point-before-command nil
+  "Capture内で現在のコマンドを開始する直前の位置。")
+
+(defvar-local my/dashboard--capture-point-generation 0
+  "古いpoint復元timerを無効化するための世代番号。")
+
+(defvar-local my/dashboard--capture-point-timer nil
+  "Capture中の意図しないpoint移動を監視するtimer。")
+
+(defun my/dashboard--restore-capture-point (buffer generation)
+  "BUFFERのpointを、GENERATIONが最新の場合だけmarker位置へ戻す。"
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (when (and (bound-and-true-p org-capture-mode)
+                 (= generation my/dashboard--capture-point-generation)
+                 (markerp my/dashboard--capture-point-marker)
+                 (marker-position my/dashboard--capture-point-marker))
+        (let ((position (marker-position my/dashboard--capture-point-marker)))
+          (unless (= (point) position)
+            (goto-char position))
+          (when-let ((window (get-buffer-window buffer t)))
+            (unless (= (window-point window) position)
+              (set-window-point window position))))))))
+
+(defun my/dashboard--watch-capture-point (buffer)
+  "BUFFERのCapture pointを最後のVim操作位置に保つ。"
+  (when (buffer-live-p buffer)
+    (with-current-buffer buffer
+      (my/dashboard--restore-capture-point
+       buffer my/dashboard--capture-point-generation))))
+
+(defun my/dashboard--stop-capture-point-watch ()
+  "現在のCapture bufferのpoint監視を停止する。"
+  (when (timerp my/dashboard--capture-point-timer)
+    (cancel-timer my/dashboard--capture-point-timer))
+  (setq my/dashboard--capture-point-timer nil))
+
+(defun my/dashboard--capture-pre-command ()
+  "Captureで外部処理に動かされたpointをコマンド実行前に戻す。"
+  (when (and (markerp my/dashboard--capture-point-marker)
+             (marker-position my/dashboard--capture-point-marker))
+    (let ((position (marker-position my/dashboard--capture-point-marker)))
+      (unless (= (point) position)
+        (goto-char position))))
+  (setq my/dashboard--capture-point-before-command (point)))
+
+(defun my/dashboard--capture-post-command ()
+  "CaptureでVim操作後の正しいpointを保存し、外部移動を監視する。"
+  ;; ESCは同じ行の1文字左へ移るのがVim本来の挙動。別行へ飛んだ場合だけ補正する。
+  (when (and (eq this-command #'evil-normal-state)
+             (integer-or-marker-p my/dashboard--capture-point-before-command)
+             (/= (line-number-at-pos)
+                 (line-number-at-pos my/dashboard--capture-point-before-command)))
+    (goto-char my/dashboard--capture-point-before-command)
+    (unless (bolp)
+      (backward-char)))
+  (unless (markerp my/dashboard--capture-point-marker)
+    (setq my/dashboard--capture-point-marker (point-marker)))
+  (set-marker my/dashboard--capture-point-marker (point) (current-buffer))
+  (cl-incf my/dashboard--capture-point-generation))
+
+(defun my/dashboard--setup-org-capture-point ()
+  "Org CaptureへVim操作を維持したpoint監視を設定する。"
+  (setq my/dashboard--capture-point-marker (point-marker)
+        my/dashboard--capture-point-before-command (point)
+        my/dashboard--capture-point-generation 0)
+  (add-hook 'pre-command-hook #'my/dashboard--capture-pre-command nil t)
+  (add-hook 'post-command-hook #'my/dashboard--capture-post-command t t)
+  (my/dashboard--stop-capture-point-watch)
+  ;; Capture中だけ40Hzでpointを確認し、画面上で飛ぶ前に戻す。
+  (setq my/dashboard--capture-point-timer
+        (run-at-time 0 0.025
+                     #'my/dashboard--watch-capture-point
+                     (current-buffer)))
+  (add-hook 'kill-buffer-hook
+            #'my/dashboard--stop-capture-point-watch nil t))
+
+;; Orgと詳細Captureでは、短いキーで予定日／期限を設定できるようにする。
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-s") #'org-schedule)
+  (define-key org-mode-map (kbd "C-d") #'org-deadline))
+
+(with-eval-after-load 'org-capture
+  (define-key org-capture-mode-map (kbd "C-s") #'org-schedule)
+  (define-key org-capture-mode-map (kbd "C-d") #'org-deadline)
+  ;; 以前の試行を再読み込みしたEmacsからも確実に取り除く。
+  (remove-hook 'org-capture-mode-hook #'my/dashboard--prepare-org-capture)
+  (remove-hook 'org-capture-mode-hook #'my/dashboard--setup-org-capture)
+  ;; DoomがInsert stateへ切り替えた後のpointを初期位置として記録する。
+  (remove-hook 'org-capture-mode-hook #'my/dashboard--setup-org-capture-point)
+  (add-hook 'org-capture-mode-hook #'my/dashboard--setup-org-capture-point t))
 
 (defun my/dashboard-open-agenda ()
   "Org agendaを開く。"
@@ -176,15 +263,6 @@
   (interactive)
   (find-file (expand-file-name "config.el" doom-user-dir)))
 
-(defun my/dashboard--guard-opening-input ()
-  "画面切替直後のキーリピートを短時間だけ無視する。"
-  ;; 未定義キーは通常mapへそのまま渡るため、文字入力は妨げない。
-  (let ((deadline (+ (float-time) 0.35)))
-    (set-transient-map
-     my/dashboard--open-guard-map
-     (lambda () (< (float-time) deadline))
-     nil nil 0.35)))
-
 (defun my/dashboard--open-todo (marker)
   "OrgのMARKERを開き、TODO見出し末尾で編集を開始する。"
   ;; Agendaと同じOrg標準APIでmarkerへ移動し、独自timerやhookは使わない。
@@ -195,8 +273,7 @@
   (org-reveal)
   (end-of-line)
   (when (fboundp 'evil-insert-state)
-    (evil-insert-state))
-  (my/dashboard--guard-opening-input))
+    (evil-insert-state)))
 
 (defun my/dashboard--org-date (timestamp)
   "OrgのTIMESTAMPからYYYY-MM-DDを取り出す。"
@@ -212,24 +289,24 @@
         records)
     (org-map-entries
      (lambda ()
-       (let* ((deadline (my/dashboard--org-date
+       (let* ((todo-state (org-get-todo-state))
+              (deadline (my/dashboard--org-date
                          (org-entry-get nil "DEADLINE")))
               (scheduled (my/dashboard--org-date
                           (org-entry-get nil "SCHEDULED")))
               (dates (delq nil (list deadline scheduled)))
               (date (car (sort dates #'string<))))
-         (push (list :title (org-get-heading t t t t)
-                     :marker (copy-marker (point))
-                     :date date
-                     :overdue (and date (string< date today)))
-               records)))
-     (format
-      (concat "+TODO<>\"DONE\"+TODO<>\"CANCELLED\""
-              "+DEADLINE<=\"<%s>\""
-              "|+TODO<>\"DONE\"+TODO<>\"CANCELLED\""
-              "+SCHEDULED<=\"<%s>\"")
-      today today)
-     'agenda)
+         ;; Org matcherへ日時比較を任せず、未完了かつ今日以前を明示判定する。
+         (when (and todo-state
+                    (not (member todo-state org-done-keywords))
+                    date
+                    (not (string< today date)))
+           (push (list :title (org-get-heading t t t t)
+                       :marker (copy-marker (point))
+                       :date date
+                       :overdue (string< date today))
+                 records))))
+     nil 'agenda)
     ;; 期限超過を先頭にし、同じ状態なら日付が早いものを優先する。
     (sort records
           (lambda (left right)
@@ -574,8 +651,16 @@
       (seq-drop my/dashboard--quick-actions 3))))
   (+dashboard-insert "")
   (+dashboard-insert
-   (propertize "SPC o d / :Dashboard    TAB to move    RET to open"
+   (propertize "SPC o d / :Dashboard    K/J to move    RET to open"
                'face 'my/dashboard-muted)))
+
+(defun my/dashboard--org-capture-active-p ()
+  "Org Captureがどこかのbufferで動作中ならnon-nilを返す。"
+  (seq-some
+   (lambda (buffer)
+     (with-current-buffer buffer
+       (bound-and-true-p org-capture-mode)))
+   (buffer-list)))
 
 (defun my/dashboard--reload-after-resize (&rest _)
   "表示幅が変わったときだけダッシュボードを再描画する。"
@@ -586,19 +671,23 @@
         (run-with-idle-timer
          0.15 nil
          (lambda ()
-           (when-let* ((buffer (get-buffer +dashboard-name))
-                       (window (get-buffer-window buffer t)))
-             (let ((width (window-body-width window)))
-               (with-current-buffer buffer
-                 (unless (equal width my/dashboard--last-window-width)
-                   (+dashboard-reload 'force)))))))))
+           ;; Capture入力中は背後のDashboardを触らない。
+           (unless (my/dashboard--org-capture-active-p)
+             (when-let* ((buffer (get-buffer +dashboard-name))
+                         (window (get-buffer-window buffer t)))
+               (let ((width (window-body-width window)))
+                 (with-current-buffer buffer
+                   (unless (equal width my/dashboard--last-window-width)
+                     (+dashboard-reload 'force))))))))))
 
 (defun my/dashboard--reload-visible ()
   "Dashboardが表示中のときだけ再描画する。"
-  (when-let* ((buffer (get-buffer +dashboard-name))
-              (window (get-buffer-window buffer t)))
-    (with-current-buffer buffer
-      (+dashboard-reload 'force))))
+  ;; Capture中に時計timerが割り込んで、入力bufferへ影響するのを避ける。
+  (unless (my/dashboard--org-capture-active-p)
+    (when-let* ((buffer (get-buffer +dashboard-name))
+                (window (get-buffer-window buffer t)))
+      (with-current-buffer buffer
+        (+dashboard-reload 'force)))))
 
 (defun my/dashboard--invalidate-org-cache ()
   "Org変更後にTODO cacheを無効化して表示を更新する。"
