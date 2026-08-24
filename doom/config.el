@@ -128,13 +128,10 @@
 
 ;; Neovimで使っている自作キーマップとExコマンド（プラグイン非依存）。
 (load! "vim-keymaps")
-;; 見た目の設定
-;; 透明度
-(set-frame-parameter nil 'alpha 90)
-(add-to-list 'default-frame-alist
-             '(alpha . 90))
-;; テーマ
-(setq doom-theme 'doom-nord)
+
+;; 見た目のロード
+(load! "apperance")
+
 
 ;; 保存時自動フォーマッタ
 (defun my/python-format-on-save ()
@@ -150,3 +147,6 @@
 
 ;; githubの認証系(forgeで使用)
 (setq auth-sources '("~/.authinfo.gpg"))
+
+;; ダッシュボードの設定
+(load! "dashboard")
