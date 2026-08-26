@@ -2,7 +2,7 @@
 *.log
 
 # Authentication
-gh/hosts.yml
+**/gh/hosts.yml
 
 # App history and runtime state
 **/automatic_backups/

@@ -31,6 +31,11 @@
   "項目に使うface。"
   :group 'my/dashboard)
 
+(defface my/dashboard-category
+  '((t (:inherit font-lock-type-face :weight medium)))
+  "Orgカテゴリー表示に使うface。"
+  :group 'my/dashboard)
+
 (defface my/dashboard-muted
   '((t (:inherit font-lock-comment-face)))
   "補助的な表示に使うface。"
@@ -61,6 +66,21 @@
   :type 'integer
   :group 'my/dashboard)
 
+(defcustom my/dashboard-default-categories '("Inbox" "大学" "学園祭")
+  "Captureの候補へ常に表示するOrgカテゴリー。"
+  :type '(repeat string)
+  :group 'my/dashboard)
+
+(defcustom my/dashboard-default-category "Inbox"
+  "DashboardからTodoを追加するときの既定カテゴリー。"
+  :type 'string
+  :group 'my/dashboard)
+
+(defcustom my/dashboard-category-filter nil
+  "DashboardのToday欄へ表示するカテゴリー。nilならすべて表示する。"
+  :type '(choice (const :tag "All categories" nil) string)
+  :group 'my/dashboard)
+
 (defconst my/dashboard--max-width 72
   "ダッシュボード本文の最大幅。")
 
@@ -78,6 +98,9 @@
 
 (defvar my/dashboard--cache (make-hash-table :test #'eq)
   "Dashboardの重いデータ取得結果を保持するcache。")
+
+(defvar my/dashboard--collecting-org-data nil
+  "Orgデータ収集中の再入を防ぐための内部フラグ。")
 
 (defun my/dashboard--cached (key seconds producer)
   "KEYの値をSECONDS秒だけ保持し、必要ならPRODUCERで再取得する。"
@@ -130,10 +153,187 @@
   "空のセクション用にLABELとACTIONを持つ項目を作る。"
   (cons (propertize label 'face 'my/dashboard-muted) action))
 
-(defun my/dashboard-capture-task ()
-  "Todo用の通常Capture画面を開く。"
+(defun my/dashboard--org-todo-keyword-info ()
+  "Org設定から(all-keywords . done-keywords)を作る。"
+  (let (all done)
+    (dolist (sequence org-todo-keywords)
+      (let ((after-separator nil))
+        (dolist (item (cdr sequence))
+          (cond
+           ((equal item "|")
+            (setq after-separator t))
+           ((stringp item)
+            ;; `TODO(t)'のような高速選択keyを除いた状態名だけを使う。
+            (let ((keyword (replace-regexp-in-string "(.*\\'" "" item)))
+              (push keyword all)
+              (when after-separator
+                (push keyword done))))))))
+    (cons (delete-dups all) (delete-dups done))))
+
+(defun my/dashboard--scan-agenda-entries ()
+  "Agenda fileからDashboardに必要な見出し情報だけを軽量に読む。
+Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競合しない。"
+  (require 'org)
+  (let* ((keyword-info (my/dashboard--org-todo-keyword-info))
+         (todo-keywords (car keyword-info))
+         (done-keywords (cdr keyword-info))
+        entries)
+    (dolist (file (org-agenda-files t))
+      (when (and (stringp file) (file-readable-p file))
+        (with-temp-buffer
+          (insert-file-contents file)
+          (goto-char (point-min))
+          (while (re-search-forward "^\\*+[ \t]+\\(.+\\)$" nil t)
+            (let* ((position (line-beginning-position))
+                   (raw-heading (string-trim (match-string-no-properties 1)))
+                   (first-word (car (split-string raw-heading)))
+                   (todo-state (and (member first-word todo-keywords) first-word))
+                   (title (if todo-state
+                              (string-trim
+                               (string-remove-prefix todo-state raw-heading))
+                            raw-heading))
+                   (entry-end
+                    (save-excursion
+                      (if (re-search-forward "^\\*+[ \t]+" nil t)
+                          (match-beginning 0)
+                        (point-max))))
+                   category deadline scheduled)
+              ;; 優先度cookieと末尾tagを、Dashboard表示名から取り除く。
+              (setq title
+                    (replace-regexp-in-string
+                     "\\`\\[#[[:alnum:]]\\][ \t]*" "" title))
+              (setq title
+                    (string-trim
+                     (replace-regexp-in-string
+                      "[ \t]+:[[:alnum:]_@#%:]+:[ \t]*\\'" "" title)))
+              (save-excursion
+                (when (re-search-forward
+                       "^[ \t]*:CATEGORY:[ \t]*\\(.+?\\)[ \t]*$"
+                       entry-end t)
+                  (setq category (string-trim (match-string-no-properties 1))))
+                (goto-char position)
+                (when (re-search-forward
+                       "^[ \t]*DEADLINE:[ \t]*[<[]\\([0-9-]+\\)"
+                       entry-end t)
+                  (setq deadline (match-string-no-properties 1)))
+                (goto-char position)
+                (when (re-search-forward
+                       "^[ \t]*SCHEDULED:[ \t]*[<[]\\([0-9-]+\\)"
+                       entry-end t)
+                  (setq scheduled (match-string-no-properties 1))))
+              (push (list :file file
+                          :position position
+                          :title title
+                          :todo-state todo-state
+                          :done (and todo-state (member todo-state done-keywords))
+                          :category category
+                          :deadline deadline
+                          :scheduled scheduled)
+                    entries))))))
+    (nreverse entries)))
+
+(defun my/dashboard--collect-org-categories ()
+  "Agenda fileに存在するOrgカテゴリーを収集する。"
+  (let ((my/dashboard--collecting-org-data t)
+        categories)
+    (dolist (entry (my/dashboard--scan-agenda-entries))
+      ;; 見出しだけの親カテゴリーではなく、実際のTodoが使う値を候補にする。
+      (when (plist-get entry :todo-state)
+        (when-let ((category (plist-get entry :category)))
+          (unless (string-empty-p category)
+            (push category categories)))))
+    (sort (delete-dups
+           (append (copy-sequence my/dashboard-default-categories)
+                   categories))
+          #'string-lessp)))
+
+(defun my/dashboard--org-categories ()
+  "cache済みのOrgカテゴリー一覧を返す。"
+  (my/dashboard--cached
+   'org-categories my/dashboard-cache-seconds
+   #'my/dashboard--collect-org-categories))
+
+(defun my/dashboard--read-category (&optional prompt default)
+  "PROMPTでOrgカテゴリーを読み、空入力ならnilを返す。"
+  (let* ((fallback (or default my/dashboard-default-category))
+         (category
+          (completing-read
+           (or prompt "Category (new allowed): ")
+           (my/dashboard--org-categories)
+           nil nil nil nil fallback)))
+    (unless (string-empty-p (string-trim category))
+      (string-trim category))))
+
+(defun my/dashboard--set-org-category-at-point ()
+  "現在のOrg見出しへカテゴリーを設定または新規作成する。"
+  (unless (derived-mode-p 'org-mode)
+    (user-error "Org見出しではありません"))
+  (org-back-to-heading t)
+  (let* ((position (point-marker))
+         (current (org-entry-get nil "CATEGORY"))
+         (clear-label "[Clear category]")
+         (categories
+          (delete-dups
+           (delq nil
+                 (cons current (copy-sequence
+                                (my/dashboard--org-categories))))))
+         (choice
+          (completing-read
+           (format "Category%s (new allowed): "
+                   (if current (format " [%s]" current) ""))
+           (cons clear-label categories)
+           nil nil nil nil current)))
+    (goto-char position)
+    (if (or (string-empty-p (string-trim choice))
+            (equal choice clear-label))
+        (progn
+          (org-delete-property "CATEGORY")
+          (message "Category cleared"))
+      ;; Herdr TODOも解釈するOrg標準Propertyへ保存する。
+      (org-set-property "CATEGORY" (string-trim choice))
+      (message "Category: %s" (string-trim choice)))
+    ;; Property drawerの挿入・削除後も元の見出し位置へ戻す。
+    (goto-char position)
+    (my/dashboard-clear-cache 'org-categories)
+    (my/dashboard-clear-cache 'org-todos)))
+
+(defun my/dashboard-set-org-category ()
+  "Org本文・Capture・Agendaから現在のTodoカテゴリーを編集する。"
   (interactive)
-  (org-capture nil "t"))
+  (if (derived-mode-p 'org-agenda-mode)
+      (let ((marker (or (org-get-at-bol 'org-hd-marker)
+                        (org-get-at-bol 'org-marker))))
+        (unless (and (markerp marker) (marker-buffer marker))
+          (user-error "このAgenda行にはOrg見出しがありません"))
+        (with-current-buffer (marker-buffer marker)
+          (goto-char marker)
+          (my/dashboard--set-org-category-at-point)
+          (save-buffer))
+        (org-agenda-redo))
+    (my/dashboard--set-org-category-at-point)
+    ;; 通常のOrg本文では保存まで行い、Herdrの外部監視へすぐ反映する。
+    ;; CaptureはC-c C-cで確定した時点にOrg標準処理が保存する。
+    (when (and buffer-file-name
+               (not (bound-and-true-p org-capture-mode)))
+      (save-buffer)))
+  (my/dashboard--reload-visible))
+
+(defun my/dashboard-capture-task ()
+  "カテゴリーを選んでTodo用の通常Capture画面を開く。"
+  (interactive)
+  (let ((category
+         (my/dashboard--read-category
+          "Task category (new allowed): "
+          (or my/dashboard-category-filter
+              my/dashboard-default-category))))
+    (org-capture nil "t")
+    ;; Herdr TODOと共通のOrg標準CATEGORY Propertyとして保存する。
+    (when (and category (bound-and-true-p org-capture-mode))
+      (let ((title-position (point-marker)))
+        (org-set-property "CATEGORY" category)
+        (goto-char title-position)
+        (when (markerp my/dashboard--capture-point-marker)
+          (set-marker my/dashboard--capture-point-marker (point)))))))
 
 (defvar-local my/dashboard--capture-point-marker nil
   "Capture内で最後にコマンドが正常終了した位置。")
@@ -143,9 +343,6 @@
 
 (defvar-local my/dashboard--capture-point-generation 0
   "古いpoint復元timerを無効化するための世代番号。")
-
-(defvar-local my/dashboard--capture-point-timer nil
-  "Capture中の意図しないpoint移動を監視するtimer。")
 
 (defun my/dashboard--restore-capture-point (buffer generation)
   "BUFFERのpointを、GENERATIONが最新の場合だけmarker位置へ戻す。"
@@ -161,19 +358,6 @@
           (when-let ((window (get-buffer-window buffer t)))
             (unless (= (window-point window) position)
               (set-window-point window position))))))))
-
-(defun my/dashboard--watch-capture-point (buffer)
-  "BUFFERのCapture pointを最後のVim操作位置に保つ。"
-  (when (buffer-live-p buffer)
-    (with-current-buffer buffer
-      (my/dashboard--restore-capture-point
-       buffer my/dashboard--capture-point-generation))))
-
-(defun my/dashboard--stop-capture-point-watch ()
-  "現在のCapture bufferのpoint監視を停止する。"
-  (when (timerp my/dashboard--capture-point-timer)
-    (cancel-timer my/dashboard--capture-point-timer))
-  (setq my/dashboard--capture-point-timer nil))
 
 (defun my/dashboard--capture-pre-command ()
   "Captureで外部処理に動かされたpointをコマンド実行前に戻す。"
@@ -197,7 +381,12 @@
   (unless (markerp my/dashboard--capture-point-marker)
     (setq my/dashboard--capture-point-marker (point-marker)))
   (set-marker my/dashboard--capture-point-marker (point) (current-buffer))
-  (cl-incf my/dashboard--capture-point-generation))
+  (cl-incf my/dashboard--capture-point-generation)
+  ;; 常時監視は行わず、コマンドループを抜けた直後に一度だけ確認する。
+  (run-at-time 0 nil
+               #'my/dashboard--restore-capture-point
+               (current-buffer)
+               my/dashboard--capture-point-generation))
 
 (defun my/dashboard--setup-org-capture-point ()
   "Org CaptureへVim操作を維持したpoint監視を設定する。"
@@ -205,24 +394,28 @@
         my/dashboard--capture-point-before-command (point)
         my/dashboard--capture-point-generation 0)
   (add-hook 'pre-command-hook #'my/dashboard--capture-pre-command nil t)
-  (add-hook 'post-command-hook #'my/dashboard--capture-post-command t t)
-  (my/dashboard--stop-capture-point-watch)
-  ;; Capture中だけ40Hzでpointを確認し、画面上で飛ぶ前に戻す。
-  (setq my/dashboard--capture-point-timer
-        (run-at-time 0 0.025
-                     #'my/dashboard--watch-capture-point
-                     (current-buffer)))
-  (add-hook 'kill-buffer-hook
-            #'my/dashboard--stop-capture-point-watch nil t))
+  (add-hook 'post-command-hook #'my/dashboard--capture-post-command t t))
 
 ;; Orgと詳細Captureでは、短いキーで予定日／期限を設定できるようにする。
 (with-eval-after-load 'org
   (define-key org-mode-map (kbd "C-s") #'org-schedule)
-  (define-key org-mode-map (kbd "C-d") #'org-deadline))
+  (define-key org-mode-map (kbd "C-d") #'org-deadline)
+  (define-key org-mode-map (kbd "C-c c") #'my/dashboard-set-org-category))
+
+(with-eval-after-load 'org-agenda
+  ;; AgendaでもHerdrと共通のCATEGORYを左側へ表示する。
+  (setf (alist-get 'agenda org-agenda-prefix-format)
+        " %i %-12:c%?-12t% s")
+  (setf (alist-get 'todo org-agenda-prefix-format)
+        " %i %-12:c ")
+  (define-key org-agenda-mode-map (kbd "C-c c")
+              #'my/dashboard-set-org-category))
 
 (with-eval-after-load 'org-capture
   (define-key org-capture-mode-map (kbd "C-s") #'org-schedule)
   (define-key org-capture-mode-map (kbd "C-d") #'org-deadline)
+  (define-key org-capture-mode-map (kbd "C-c c")
+              #'my/dashboard-set-org-category)
   ;; 以前の試行を再読み込みしたEmacsからも確実に取り除く。
   (remove-hook 'org-capture-mode-hook #'my/dashboard--prepare-org-capture)
   (remove-hook 'org-capture-mode-hook #'my/dashboard--setup-org-capture)
@@ -263,11 +456,11 @@
   (interactive)
   (find-file (expand-file-name "config.el" doom-user-dir)))
 
-(defun my/dashboard--open-todo (marker)
-  "OrgのMARKERを開き、TODO見出し末尾で編集を開始する。"
-  ;; Agendaと同じOrg標準APIでmarkerへ移動し、独自timerやhookは使わない。
-  (org-goto-marker-or-bmk marker)
+(defun my/dashboard--open-todo (file position)
+  "OrgのFILEを開き、POSITIONのTODO見出し末尾で編集を開始する。"
+  (find-file file)
   (widen)
+  (goto-char (min position (point-max)))
   (org-back-to-heading t)
   (org-show-context 'agenda)
   (org-reveal)
@@ -285,28 +478,27 @@
 (defun my/dashboard--collect-org-todos ()
   "今日までの未完了Org TODOを収集し、優先順に並べる。"
   (require 'org)
-  (let ((today (format-time-string "%Y-%m-%d"))
+  (let ((my/dashboard--collecting-org-data t)
+        (today (format-time-string "%Y-%m-%d"))
         records)
-    (org-map-entries
-     (lambda ()
-       (let* ((todo-state (org-get-todo-state))
-              (deadline (my/dashboard--org-date
-                         (org-entry-get nil "DEADLINE")))
-              (scheduled (my/dashboard--org-date
-                          (org-entry-get nil "SCHEDULED")))
+    (dolist (entry (my/dashboard--scan-agenda-entries))
+       (let* ((todo-state (plist-get entry :todo-state))
+              (deadline (plist-get entry :deadline))
+              (scheduled (plist-get entry :scheduled))
               (dates (delq nil (list deadline scheduled)))
               (date (car (sort dates #'string<))))
          ;; Org matcherへ日時比較を任せず、未完了かつ今日以前を明示判定する。
          (when (and todo-state
-                    (not (member todo-state org-done-keywords))
+                    (not (plist-get entry :done))
                     date
                     (not (string< today date)))
-           (push (list :title (org-get-heading t t t t)
-                       :marker (copy-marker (point))
+           (push (list :file (plist-get entry :file)
+                       :position (plist-get entry :position)
+                       :title (plist-get entry :title)
+                       :category (plist-get entry :category)
                        :date date
                        :overdue (string< date today))
                  records))))
-     nil 'agenda)
     ;; 期限超過を先頭にし、同じ状態なら日付が早いものを優先する。
     (sort records
           (lambda (left right)
@@ -325,18 +517,32 @@
               (my/dashboard--cached
                'org-todos my/dashboard-cache-seconds
                #'my/dashboard--collect-org-todos))
+             (records
+              (if my/dashboard-category-filter
+                  (seq-filter
+                   (lambda (record)
+                     (equal (plist-get record :category)
+                            my/dashboard-category-filter))
+                   records)
+                records))
              (todo-limit (max 0 (1- my/dashboard-item-count)))
              (items
               (mapcar
                (lambda (record)
-                 (let ((marker (plist-get record :marker))
+                 (let ((file (plist-get record :file))
+                       (position (plist-get record :position))
                        (title (plist-get record :title))
+                       (category (plist-get record :category))
                        (overdue (plist-get record :overdue)))
                    (my/dashboard--make-item
-                    (if overdue
-                        (concat (propertize "OVERDUE " 'face 'error) title)
-                      title)
-                    (lambda () (my/dashboard--open-todo marker)))))
+                    (concat
+                     (when category
+                       (propertize (format "[%s] " category)
+                                   'face 'my/dashboard-category))
+                     (if overdue
+                         (concat (propertize "OVERDUE " 'face 'error) title)
+                       title))
+                    (lambda () (my/dashboard--open-todo file position)))))
                (seq-take records todo-limit))))
         (cons (my/dashboard--make-item
                "Add task" #'my/dashboard-capture-task)
@@ -351,6 +557,22 @@
                (truncate-string-to-width
                 (error-message-string error-data) 28 nil nil "..."))
        #'my/dashboard-refresh)))))
+
+(defun my/dashboard-set-category-filter ()
+  "DashboardのToday欄をOrgカテゴリーで絞り込む。"
+  (interactive)
+  (let* ((all-label "All categories")
+         (choice
+          (completing-read
+           "Dashboard category: "
+           (cons all-label (my/dashboard--org-categories))
+           nil t nil nil
+           (or my/dashboard-category-filter all-label))))
+    (setq my/dashboard-category-filter
+          (unless (equal choice all-label) choice))
+    (+dashboard-reload 'force)
+    (message "Dashboard category: %s"
+             (or my/dashboard-category-filter "All"))))
 
 (defun my/dashboard--file-label (path)
   "PATHをファイル名と親directoryからなる短い表示名にする。"
@@ -581,6 +803,7 @@
 
 (defconst my/dashboard--quick-actions
   `(("Agenda" . ,#'my/dashboard-open-agenda)
+    ("Category" . ,#'my/dashboard-set-category-filter)
     ("Projects" . ,#'my/dashboard-toggle-project)
     ("Terminal" . ,#'my/dashboard-open-terminal)
     ("Magit" . ,#'my/dashboard-open-magit)
@@ -616,7 +839,11 @@
   "ウィンドウ幅に応じて本文を2カラムまたは1カラムで表示する。"
   (let* ((window-width (my/dashboard--window-width))
          (content-width (my/dashboard--content-width window-width))
-         (today (cons "Today" (my/dashboard--org-todos)))
+         (today-title
+          (if my/dashboard-category-filter
+              (format "Today: %s" my/dashboard-category-filter)
+            "Today"))
+         (today (cons today-title (my/dashboard--org-todos)))
          (recent (cons "Recent files" (my/dashboard--recent-files)))
          (projects (cons "Projects" (my/dashboard--projects)))
          (unread (cons "Elfeed unread" (my/dashboard--elfeed-unread))))
@@ -639,16 +866,16 @@
 (defun my/dashboard-widget-shortcuts ()
   "Dashboardのクイック操作を中央に表示する。"
   (+dashboard-insert "")
-  (if (>= (my/dashboard--window-width) 74)
+  (if (>= (my/dashboard--window-width) 96)
       (+dashboard-insert
        (my/dashboard--shortcut-string my/dashboard--quick-actions))
     ;; 狭いterminalでは2行に分けて操作名を省略しない。
     (+dashboard-insert
      (my/dashboard--shortcut-string
-      (seq-take my/dashboard--quick-actions 3)))
+      (seq-take my/dashboard--quick-actions 4)))
     (+dashboard-insert
      (my/dashboard--shortcut-string
-      (seq-drop my/dashboard--quick-actions 3))))
+      (seq-drop my/dashboard--quick-actions 4))))
   (+dashboard-insert "")
   (+dashboard-insert
    (propertize "SPC o d / :Dashboard    K/J to move    RET to open"
@@ -656,10 +883,13 @@
 
 (defun my/dashboard--org-capture-active-p ()
   "Org Captureがどこかのbufferで動作中ならnon-nilを返す。"
+  ;; `with-current-buffer'で全bufferを巡るとbuffer-list-update-hookが再発火し、
+  ;; Dashboard再描画と相互再帰するため、bufferを切り替えず値だけを読む。
   (seq-some
    (lambda (buffer)
-     (with-current-buffer buffer
-       (bound-and-true-p org-capture-mode)))
+     (and (buffer-live-p buffer)
+          (boundp 'org-capture-mode)
+          (buffer-local-value 'org-capture-mode buffer)))
    (buffer-list)))
 
 (defun my/dashboard--reload-after-resize (&rest _)
@@ -672,26 +902,32 @@
          0.15 nil
          (lambda ()
            ;; Capture入力中は背後のDashboardを触らない。
-           (unless (my/dashboard--org-capture-active-p)
+           (unless (or my/dashboard--collecting-org-data
+                       (my/dashboard--org-capture-active-p))
              (when-let* ((buffer (get-buffer +dashboard-name))
                          (window (get-buffer-window buffer t)))
                (let ((width (window-body-width window)))
-                 (with-current-buffer buffer
-                   (unless (equal width my/dashboard--last-window-width)
-                     (+dashboard-reload 'force))))))))))
+                 (let ((buffer-list-update-hook nil))
+                   (with-current-buffer buffer
+                     (unless (equal width my/dashboard--last-window-width)
+                       (+dashboard-reload 'force)))))))))))
 
 (defun my/dashboard--reload-visible ()
   "Dashboardが表示中のときだけ再描画する。"
   ;; Capture中に時計timerが割り込んで、入力bufferへ影響するのを避ける。
-  (unless (my/dashboard--org-capture-active-p)
+  (unless (or my/dashboard--collecting-org-data
+              (my/dashboard--org-capture-active-p))
     (when-let* ((buffer (get-buffer +dashboard-name))
                 (window (get-buffer-window buffer t)))
-      (with-current-buffer buffer
-        (+dashboard-reload 'force)))))
+      ;; buffer切替hookから再びこの関数へ戻らないようにする。
+      (let ((buffer-list-update-hook nil))
+        (with-current-buffer buffer
+          (+dashboard-reload 'force))))))
 
 (defun my/dashboard--invalidate-org-cache ()
   "Org変更後にTODO cacheを無効化して表示を更新する。"
   (my/dashboard-clear-cache 'org-todos)
+  (my/dashboard-clear-cache 'org-categories)
   (my/dashboard--reload-visible))
 
 (defun my/dashboard--invalidate-after-org-save ()
@@ -707,6 +943,7 @@
   (add-hook 'after-save-hook
             #'my/dashboard--invalidate-after-org-save nil t))
 
+;; 幅が本当に変わった時だけ再描画し、GUI/terminalのサイズへ追従する。
 (add-hook 'window-size-change-functions
           #'my/dashboard--reload-after-resize)
 (add-hook 'org-mode-hook #'my/dashboard--setup-org-save-hook)

@@ -2,8 +2,10 @@
 
 ;; 見た目の設定
 ;; 透明度
-(set-frame-parameter nil 'alpha 90)
+(set-frame-parameter nil 'alpha 95)
 (add-to-list 'default-frame-alist
-             '(alpha . 90))
+             '(alpha . 95))
 ;; テーマ
 (setq doom-theme 'doom-nord)
+;; フォント
+(setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 16))

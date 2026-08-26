@@ -52,7 +52,7 @@
   (setq org-capture-templates
         '(("t" "Todo" entry
            (file+headline "tasks.org" "Inbox")
-           "* TODO %?\n  %U"))))
+           "* TODO %?\n"))))
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `with-eval-after-load' block, otherwise Doom's defaults may override your
@@ -131,6 +131,9 @@
 
 ;; 見た目のロード
 (load! "apperance")
+
+;; Xcode系のコマンド
+(load! "xcode")
 
 
 ;; 保存時自動フォーマッタ
