@@ -135,3 +135,6 @@
 
 ;; ダッシュボードの設定
 (load! "dashboard")
+
+;; texの自動化
+(load! "latex")

@@ -1,6 +1,5 @@
 ;;; doom/keymap.el -*- lexical-binding: t; -*-
 
-
 ;;vtermを開くように
 (defun toggle/vterm ()
   "vtermのtoggle"
