@@ -390,6 +390,11 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
 
 (defun my/dashboard--setup-org-capture-point ()
   "Org CaptureへVim操作を維持したpoint監視を設定する。"
+  ;; このOrg版ではCaptureのindirect bufferでindent用cache初期化が
+  ;; 終わらなくなるため、短い入力bufferに限って構文cacheとindentを使わない。
+  (setq-local org-element-use-cache nil)
+  (when (bound-and-true-p org-indent-mode)
+    (org-indent-mode -1))
   (setq my/dashboard--capture-point-marker (point-marker)
         my/dashboard--capture-point-before-command (point)
         my/dashboard--capture-point-generation 0)
