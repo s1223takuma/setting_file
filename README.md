@@ -1,14 +1,14 @@
 # Terminal Development Environment Configs (macOS / Linux / Windows)
 
-Ghostty、Herdr、Fish、Neovim、Starshipを中心に、macOSの開発環境とウィンドウ操作の設定をまとめたリポジトリです。
+Emacsをメインエディタ、Neovimを軽い編集用として、Ghostty、Herdr、Fish、StarshipなどmacOSの開発環境とウィンドウ操作の設定をまとめたリポジトリです。
 自分用のバックアップであると同時に、友達が環境を再現したり、Neovimの操作を確認したりするためのチートシートとして使えます。
 
 設定は対応OSごとの4ディレクトリに分けています。分類はアプリの一般的な対応状況ではなく、**このリポジトリにある設定内容をそのまま使えるOS**を基準にしています。
 
 > [!WARNING]
 > **実ファイル管理について**
-> このリポジトリは、主に `~/.config` で実際に使っている設定ファイルのコピーです。
-> ここを編集してもホームディレクトリ側へ自動反映・同期はされません。既存設定へコピーする前にバックアップしてください。
+> 配置方法はシンボリックリンクとコピーが混在しています。この環境のDoom・Neovim・Ghosttyなどはリンクなので、リポジトリ内の編集が実際の設定にも反映されます（アプリ側の再読込は別途必要です）。
+> Herdrは独立したコピーです。利用中の設定と管理版を変更したら、必要に応じて明示的に同期してください。既存設定を上書きする前にバックアップしてください。
 
 > [!NOTE]
 > **Windows利用時の注意**
@@ -23,6 +23,7 @@ Ghostty、Herdr、Fish、Neovim、Starshipを中心に、macOSの開発環境と
 ```text
 .
 ├── README.md
+├── doom/                    # メインのDoom Emacs（現在の設定はmacOS向け）
 ├── macos-only/              # macOSのみ
 │   ├── yabai/               # macOSウィンドウマネージャ
 │   ├── skhd/                # yabai操作・アプリ起動
@@ -94,6 +95,7 @@ pip install pynvim jupyter_client ipykernel --user
 | gh (GitHub CLI)       | octo.nvim のPR/Issue操作を安定化                          | `brew install gh`                 | `winget install GitHub.cli`                         |
 | Dart / Flutter        | flutter-tools.nvim、Dart開発                              | Flutter SDKを導入                 | Flutter SDKを導入                                   |
 | SourceKit-LSP / Swift | Swift LSP・`:As`/`:Sw`実行コマンド                        | Xcode同梱（追加インストール不要） | **非対応**（Swift for Windowsは実験的、非推奨）     |
+| Ruff / StyLua / SwiftFormat | Python / Lua / Swiftの整形                       | `brew install ruff stylua swiftformat` | 利用する言語のフォーマッタを別途導入 |
 | Ghostty               | ターミナル本体                                            | `brew install --cask ghostty`     | **非対応**（WSL2 + Windows Terminal / WezTerm推奨） |
 | WezTerm               | Kittyグラフィックスプロトコル対応ターミナル(image.nvim用) | `brew install --cask wezterm`     | `winget install wez.wezterm`                        |
 
@@ -134,6 +136,7 @@ cp cross-platform/gh/config.yml ~/.config/gh/config.yml
 ```
 
 既存設定がある場合は、先に `~/.config/nvim` などをバックアップしてください。
+Herdrの管理版には個人環境のプラグイン設定も含まれます。上記の導入コマンドだけでは `herdr-editor`、`herdr-browse`、`gitpet` は揃わないため、別途導入するか、該当ショートカットを無効化してください。`lazygit`、`yazi`、`btop` も各機能を使う場合に必要です。
 
 ### Windows (PowerShell)
 
@@ -177,7 +180,7 @@ WSL2を使う場合は、Ubuntu内の `~/.config/nvim` と `~/.config/starship.t
 3. **画像表示はターミナル依存**
    Windowsでは `image.nvim` を読み込まない設定です。画像表示も使いたい場合は、WezTermなど対応ターミナルを用意し、プラグイン側の条件を調整してください。
 4. **jdtlsはOSを自動判定**
-   Java用設定はWindowsで `config_win`、それ以外で `config_mac` を選びます。Masonからjdtlsを導入してください。
+   Java用設定はWindowsで `config_win`、macOSで `config_mac`、Linuxで `config_linux` を選びます。Masonからjdtlsを導入してください。プロジェクト別の作業データはNeovimのcacheディレクトリに置きます。
 5. **macOS専用設定はコピー不要**
    `macos-only/` と `linux-only/` 以下の設定はWindowsでは使いません。近いターミナル・シェル環境が必要ならWSL2 + Windows Terminal / WezTermを利用してください。
 6. **Neovimのシェルは自動判定**
@@ -187,10 +190,19 @@ WSL2を使う場合は、Ubuntu内の `~/.config/nvim` と `~/.config/starship.t
 
 ## 📝 各設定のハイライト
 
+### Doom Emacs (`doom/`)
+
+- メインの編集環境。既存のVim風操作に加え、`keymap.el` のvterm・Forgeキーマップも読み込みます。
+- Pythonの保存時整形はRuffを優先し、なければ整形対応LSPを利用します。Pyrightのみの場合は整形をスキップし、保存を妨げません。
+- LaTeXはMacTeXの `/Library/TeX/texbin` を利用。同じファイルの連続保存はまとめて順番にコンパイルし、PDFを更新します。
+- Dashboardは同じplanning行にある `SCHEDULED` と `DEADLINE` を両方読み取ります。
+- `doom/init.el` を変えたときは `~/.config/emacs/bin/doom sync` とEmacsの再起動が必要です。
+
 ### Herdr (`macos-linux/herdr/`)
 
 - `Ctrl+A`をprefixにした、キーボード中心のタブ・ペイン操作
-- `prefix+e`: ファイルビューア、`prefix+g`: 差分レビュー、`prefix+s`: Spreaderレイアウト適用
+- `prefix+e`: Editor、`prefix+Shift+e`: ファイルビューア、`prefix+g`: lazygit、`prefix+s`: Spreaderレイアウト適用
+- `prefix+m`: Markdown、`prefix+p`: GitPet、`prefix+t`: GitPet TODO（各プラグインの導入が必要）
 - `Ctrl+h/j/k/l`: Neovim splitとHerdr paneをシームレスに移動
 - Codexの状態通知、セッション復元、日本語IME向けの入力補助を有効化
 - `macos-linux/herdr/spreader/config.yaml`からdotfiles用workspaceを作成し、Neovimとシェルを上下に配置
@@ -199,7 +211,7 @@ WSL2を使う場合は、Ubuntu内の `~/.config/nvim` と `~/.config/starship.t
 
 ### 1. Ghostty Terminal (`macos-only/ghostty/config`)
 
-- `background-opacity = 0.6` と背景画像の透過で見た目を調整しています。
+- `background-opacity = 0.9` と背景画像の透過で見た目を調整しています。
 - `Cmd+Enter`: 右に分割 / `Cmd+Shift+Enter`: 下に分割 / `Cmd+矢印`: ペイン移動 / `Cmd+Shift+矢印`: リサイズ / `Cmd+W`: ペインを閉じる
 
 ### 2. Neovim (`cross-platform/nvim/`)
@@ -208,9 +220,9 @@ WSL2を使う場合は、Ubuntu内の `~/.config/nvim` と `~/.config/starship.t
 
 #### 自動化機能 (`autocmds.lua`)
 
-- 保存時に行末の不要な空白を自動削除
+- 保存時に行末の不要な空白を自動削除（Markdownの改行用スペースは保持）
 - ファイルを開くと最後のカーソル位置を復元
-- `:MemoPush` / `:DailyPush` でメモや日記の差分を確認し、commit・pushする
+- `:MemoPush` / `:DailyPush` で対象ファイルの変更一覧と送信先ブランチを確認し、commit・pushする。対象外のstage済み変更はcommitに含めない
 - LSP接続時に定義・宣言・参照・実装ジャンプとinlay hint切り替えを設定
 - 2MBを超えるファイルではswap・undo・syntaxを抑えるLarge file modeを有効化
 

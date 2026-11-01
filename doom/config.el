@@ -37,6 +37,7 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-one)
+(setq-default tab-width 4)
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -53,6 +54,15 @@
         '(("t" "Todo" entry
            (file+headline "tasks.org" "Inbox")
            "* TODO %?\n"))))
+
+;; Herdr updates tasks.org outside Emacs. A stale Org element cache can then
+;; point into the middle of a planning line and abort agenda generation.
+(defun my/org-agenda-reset-file-caches (&rest _)
+  (dolist (file (org-agenda-files t))
+    (when (file-readable-p file)
+      (with-current-buffer (find-file-noselect file)
+        (org-element-cache-reset)))))
+(advice-add #'org-agenda :before #'my/org-agenda-reset-file-caches)
 
 ;; Whenever you reconfigure a package, make sure to wrap your config in an
 ;; `with-eval-after-load' block, otherwise Doom's defaults may override your
@@ -110,6 +120,7 @@
 
 ;; Neovimで使っている自作キーマップとExコマンド（プラグイン非依存）。
 (load! "vim-keymaps")
+(load! "keymap")
 
 ;; 見た目のロード
 (load! "apperance")
@@ -118,9 +129,36 @@
 (load! "xcode")
 
 
-;; 保存時自動フォーマッタ
+;; Pyrightは整形に対応しないため、Ruffを優先する。
+(defun my/python-format-buffer ()
+  "Format with Ruff, or a formatting-capable LSP server if available.
+A missing formatter or invalid source must not prevent saving."
+  (condition-case err
+      (if-let ((ruff (executable-find "ruff")))
+          (let ((output (generate-new-buffer " *python-format*"))
+                (coding-system-for-read 'utf-8-unix)
+                (coding-system-for-write 'utf-8-unix))
+            (unwind-protect
+                (save-restriction
+                  (widen)
+                  (if (eq 0 (call-process-region
+                             (point-min) (point-max) ruff nil (list output nil) nil
+                             "format" "--stdin-filename"
+                             (or buffer-file-name "buffer.py") "-"))
+                      (save-excursion (replace-buffer-contents output))
+                    (display-warning 'python-format
+                                     "Ruffの整形に失敗しました。元の内容で保存します。")))
+              (kill-buffer output)))
+        (when (and (bound-and-true-p lsp-mode)
+                   (fboundp 'lsp-feature?)
+                   (or (lsp-feature? "textDocument/formatting")
+                       (lsp-feature? "textDocument/rangeFormatting")))
+          (lsp-format-buffer)))
+    (error (display-warning 'python-format (error-message-string err)))))
+
 (defun my/python-format-on-save ()
-  (add-hook 'before-save-hook #'lsp-format-buffer nil t))
+  (remove-hook 'before-save-hook #'lsp-format-buffer t)
+  (add-hook 'before-save-hook #'my/python-format-buffer nil t))
 
 (add-hook 'python-mode-hook #'my/python-format-on-save)
 (add-hook 'python-ts-mode-hook #'my/python-format-on-save)

@@ -1,5 +1,7 @@
 -- OS-specific plugins are disabled on Windows.
-local is_windows = vim.loop.os_uname().sysname:match("Windows") ~= nil
+local sysname = vim.uv.os_uname().sysname
+local is_windows = sysname:match("Windows") ~= nil
+local jdtls_platform = is_windows and "win" or (sysname == "Darwin" and "mac" or "linux")
 
 return {
   -- =========================
@@ -61,7 +63,6 @@ return {
     ft = { "java" },
     config = function()
       local jdtls = require("jdtls")
-      local home = os.getenv("HOME")
       local root_dir = require("jdtls.setup").find_root({
         ".git",
         "pom.xml",
@@ -75,7 +76,7 @@ return {
         root_dir = vim.fn.getcwd()
       end
       -- JDTLS workspaces cannot safely be shared by unrelated projects.
-      local workspace = home .. "/.cache/jdtls/" .. vim.fn.sha256(root_dir):sub(1, 16)
+      local workspace = vim.fn.stdpath("cache") .. "/jdtls/" .. vim.fn.sha256(root_dir):sub(1, 16)
 
       -- Masonのjdtlsパスを取得
       local mason_registry = require("mason-registry")
@@ -99,13 +100,13 @@ return {
           "-jar",
           launcher_jar,
           "-configuration",
-          jdtls_path .. (is_windows and "/config_win" or "/config_mac"),
+          jdtls_path .. "/config_" .. jdtls_platform,
           "-data",
           workspace,
         },
         root_dir = root_dir,
         workspace_folders = { {
-          uri = "file://" .. workspace,
+          uri = vim.uri_from_fname(workspace),
           name = "workspace",
         } },
       })

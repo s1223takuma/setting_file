@@ -32,17 +32,30 @@ end, {})
 
 local python = vim.fn.has('win32') == 1 and 'python' or 'python3'
 
+local function run_in_terminal(program)
+  vim.cmd('write')
+  local file = vim.api.nvim_buf_get_name(0)
+  vim.cmd('new')
+  -- シェル文字列に連結せず、空白や記号を含むファイル名もそのまま渡す。
+  vim.fn.jobstart({ program, file }, { term = true })
+end
+
+local function run_with_input(program)
+  vim.cmd('write')
+  local file = vim.fn.shellescape(vim.api.nvim_buf_get_name(0), true)
+  local input = vim.fn.shellescape(vim.fn.getcwd() .. '/test.txt', true)
+  vim.cmd('!' .. program .. ' ' .. file .. ' < ' .. input)
+end
+
 -- :PyでPythonファイルを実行
 vim.api.nvim_create_user_command('Py', function()
-  vim.cmd('write')
-  vim.cmd('split | terminal ' .. python .. ' ' .. vim.fn.shellescape(vim.fn.expand('%:p')))
+  run_in_terminal(python)
   vim.cmd('startinsert')
 end, {})
 
 -- :SwでSwiftファイルを実行
 vim.api.nvim_create_user_command('Sw', function()
-  vim.cmd('write')
-  vim.cmd('split | terminal swift ' .. vim.fn.expand('%:p'))
+  run_in_terminal('swift')
 end, {})
 -- :W や :Wq で保存
 vim.api.nvim_create_user_command('W', function()
@@ -55,12 +68,10 @@ end, {})
 
 -- :As で Swift プログラムを実行 (AtCoder用)
 vim.api.nvim_create_user_command('As', function()
-  vim.cmd('write')
-  vim.cmd('!swift % < test.txt')
+  run_with_input('swift')
 end, {})
 
 -- :Ap で Python プログラムを実行 (AtCoder用)
 vim.api.nvim_create_user_command('Ap', function()
-  vim.cmd('write')
-  vim.cmd('!' .. python .. ' % < test.txt')
+  run_with_input(python)
 end, {})

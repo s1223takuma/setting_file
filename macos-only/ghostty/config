@@ -4,7 +4,7 @@ font-size = 14
 # 行間を少し広げてモダンにする
 # adjust-cell-height = 10%
 # フォントファミリー
-# font-family = "JetBrainsMono Nerd Font Mono"
+font-family = "JetBrainsMono Nerd Font Mono"
 
 # テーマ
 theme = nightfox

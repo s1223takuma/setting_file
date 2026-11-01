@@ -212,15 +212,18 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
                        entry-end t)
                   (setq category (string-trim (match-string-no-properties 1))))
                 (goto-char position)
-                (when (re-search-forward
-                       "^[ \t]*DEADLINE:[ \t]*[<[]\\([0-9-]+\\)"
-                       entry-end t)
-                  (setq deadline (match-string-no-properties 1)))
-                (goto-char position)
-                (when (re-search-forward
-                       "^[ \t]*SCHEDULED:[ \t]*[<[]\\([0-9-]+\\)"
-                       entry-end t)
-                  (setq scheduled (match-string-no-properties 1))))
+                (forward-line 1)
+                ;; Orgのplanning行では、両方の日時が同じ行に並ぶ。
+                ;; 本文中のDEADLINE等はplanning情報として扱わない。
+                (when (and (< (point) entry-end)
+                           (looking-at-p org-planning-line-re))
+                  (let ((planning-end (line-end-position)))
+                    (while (re-search-forward
+                            "\\_<\\(DEADLINE\\|SCHEDULED\\):[ \t]*[<[]\\([0-9-]+\\)"
+                            planning-end t)
+                      (if (equal (match-string-no-properties 1) "DEADLINE")
+                          (setq deadline (match-string-no-properties 2))
+                        (setq scheduled (match-string-no-properties 2)))))))
               (push (list :file file
                           :position position
                           :title title

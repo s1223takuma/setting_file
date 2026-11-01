@@ -13,13 +13,18 @@ autocmd("InsertLeave", {
     end
   end,
 })
--- Remove whitespace on save
+-- Markdownの行末2スペースは改行なので保持する。
 autocmd("BufWritePre", {
   group = general,
   pattern = "*",
   callback = function(args)
-    if vim.bo[args.buf].modifiable and vim.bo[args.buf].buftype == "" then
-      vim.cmd([[silent! %s/\s\+$//e]])
+    local bo = vim.bo[args.buf]
+    if bo.modifiable and bo.buftype == "" and bo.filetype ~= "markdown" then
+      vim.api.nvim_buf_call(args.buf, function()
+        local view = vim.fn.winsaveview()
+        vim.cmd([[silent! keeppatterns %s/\s\+$//e]])
+        vim.fn.winrestview(view)
+      end)
     end
   end,
 })
@@ -108,7 +113,7 @@ autocmd("LspAttach", {
   end,
 })
 local function git(cwd, args)
-  local command = { "git" }
+  local command = { "git", "--literal-pathspecs" }
   vim.list_extend(command, args)
   return vim.system(command, { cwd = cwd, text = true }):wait()
 end
@@ -116,6 +121,10 @@ end
 local function commit_and_push(opts)
   local cwd = vim.fn.expand(opts.cwd)
   local pathspec = opts.all and "." or vim.api.nvim_buf_get_name(0)
+  if not opts.all and (pathspec == "" or vim.bo.modified) then
+    vim.notify("先に対象ファイルを保存してください", vim.log.levels.WARN)
+    return
+  end
   local status = git(cwd, { "status", "--porcelain", "--", pathspec })
 
   if status.code ~= 0 then
@@ -126,7 +135,14 @@ local function commit_and_push(opts)
     vim.notify("変更はありません")
     return
   end
-  if vim.fn.confirm("変更を commit して GitHub に push しますか？", "&Yes\n&No", 2) ~= 1 then
+  local branch = git(cwd, { "branch", "--show-current" })
+  if branch.code ~= 0 or vim.trim(branch.stdout) == "" then
+    vim.notify("現在のブランチを取得できません", vim.log.levels.ERROR)
+    return
+  end
+  local prompt = cwd .. "\n" .. status.stdout
+    .. "\n上記の変更を commit して origin/" .. vim.trim(branch.stdout) .. " に push しますか？"
+  if vim.fn.confirm(prompt, "&Yes\n&No", 2) ~= 1 then
     return
   end
 
@@ -140,19 +156,14 @@ local function commit_and_push(opts)
 
   for _, step in ipairs({
     { "add", "--", pathspec },
-    { "commit", "-m", message },
+    -- 他ファイルのstage済み変更を巻き込まず、対象だけをcommitする。
+    { "commit", "--only", "-m", message, "--", pathspec },
   }) do
     local result = git(cwd, step)
     if result.code ~= 0 then
       vim.notify(vim.trim(result.stderr ~= "" and result.stderr or result.stdout), vim.log.levels.ERROR)
       return
     end
-  end
-
-  local branch = git(cwd, { "branch", "--show-current" })
-  if branch.code ~= 0 or vim.trim(branch.stdout) == "" then
-    vim.notify("現在のブランチを取得できません", vim.log.levels.ERROR)
-    return
   end
 
   local pushed = git(cwd, { "push", "origin", vim.trim(branch.stdout) })

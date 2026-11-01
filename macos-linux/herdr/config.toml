@@ -1,3 +1,4 @@
+onboarding = false
 # Herdrをキーボード中心で快適に使う設定。
 
 [theme]
@@ -21,7 +22,7 @@ prefix = "ctrl+a"
 # タブ・ペインの基本操作。
 new_tab = "prefix+c"
 close_tab = "prefix+shift+x"
-previous_tab = "prefix+p"
+previous_tab = "prefix+shift+p"
 next_tab = "prefix+n"
 switch_tab = "prefix+1..9"
 focus_pane_left = "prefix+h"
@@ -35,7 +36,7 @@ close_pane = "prefix+x"
 zoom = "prefix+z"
 resize_mode = "prefix+r"
 reload_config = "prefix+shift+r"
-navigator="prefix+w"
+# navigator = "prefix+w"
 
 # herdr の workspace / agent をすばやく扱う。
 # workspace_picker = "prefix+w"
@@ -49,10 +50,16 @@ toggle_sidebar = "prefix+b"
 
 # プラグイン系
 [[keys.command]]
+key = "prefix+ctrl+b"
+type = "shell"
+command = '"${HERDR_BIN_PATH}" plugin pane open --plugin official.browser --entrypoint browser --placement split --direction right --focus'
+description = "Open browser in right split"
+
+[[keys.command]]
 key = "prefix+e"
 type = "plugin_action"
-command = "herdr-file-viewer.open-file-viewer"
-description = "Open file viewer"
+command = "herdr-editor.open"
+description = "Open editor space"
 [[keys.command]]
 key = "prefix+shift+e"
 type = "shell"
@@ -72,17 +79,23 @@ type = "popup"
 command = "yazi"
 width = "80%"
 height = "80%"
+
+[[keys.command]]
+key = "prefix+m"
+type = "plugin_action"
+command = "herdr-browse.open-markdown"
+description = "Open Markdown"
+[[keys.command]]
+key = "prefix+p"
+type = "shell"
+command = "herdr plugin action invoke open --plugin gitpet"
+description = "Open GitPet"
 # Todo
 [[keys.command]]
 key = "prefix+t"
 type = "plugin_action"
-command = "herdr-todo.open"
-description = "Open TODO"
-[[keys.command]]
-key = "prefix+alt+t"
-type = "plugin_action"
-command = "herdr-todo.restart-all"
-description = "Restart TODOs in all workspaces"
+command = "gitpet.open-todos"
+description = "Open GitPet TODOs"
 # システムモニター
 [[keys.command]]
 key = "prefix+shift+b"
@@ -144,6 +157,8 @@ enabled = false
 resume_agents_on_restore = true
 
 [experimental]
+# Ghostty へ Kitty Graphics Protocol の画像を転送する。
+kitty_graphics = true
 # 再起動後もペイン履歴を復元する。
 pane_history = true
 # 日本語 ime のまま prefix を押してもコマンドを認識しやすくする。
