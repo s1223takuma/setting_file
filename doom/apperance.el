@@ -2,7 +2,7 @@
 
 ;; 見た目の設定
 ;; 透明度
-(set-frame-parameter nil 'alpha 90)
+(set-frame-parameter nil 'alpha 80)
 (add-to-list 'default-frame-alist
              '(alpha . 95))
 ;; テーマ

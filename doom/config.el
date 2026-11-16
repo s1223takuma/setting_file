@@ -176,3 +176,6 @@ A missing formatter or invalid source must not prevent saving."
 
 ;; texの自動化
 (load! "latex")
+
+;; gptel
+(load! "ai")

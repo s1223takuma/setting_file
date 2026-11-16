@@ -23,7 +23,7 @@
       :desc "Open Finder"
       "o f" #'my/open-current-directory-in-finder)
 
-;; 今開いてるorgfileにpython実行セルを入れる
+;; 開いてるorgfileにpython実行セルを入れる
 (defun insert/py ()
   (interactive)
   (unless (derived-mode-p 'org-mode)
@@ -31,11 +31,9 @@
   (insert "\n#+begin_src python" "\n\n" "#+end_src")
   (forward-line -1))
 
-(after! org
-  (map! :map org-mode-map
-        :leader
-        :desc "Insert Python block"
-        "i p" #'insert/py))
+(map! :leader
+      :desc "Insert Python block"
+      "i p" #'insert/py)
 
 ;; forgeのkeymap
 (after! forge

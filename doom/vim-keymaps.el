@@ -166,7 +166,9 @@ When INPUT-FILE is non-nil, redirect it to standard input."
          "k" #'evil-normal-state))
 
   (define-key evil-insert-state-map (kbd ",")
-              (cmd! (insert ", ")))
+              (cmd! (if (derived-mode-p 'vterm-mode)
+                        (vterm-send-string ",")
+                      (insert ", "))))
 
   ;; Visual mode
   (define-key evil-visual-state-map (kbd "<")
