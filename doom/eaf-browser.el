@@ -16,6 +16,11 @@
     (require 'eaf-browser)
     (setq eaf-python-command python)))
 
+;; EAF がキーを受け取る前に Evil の通常モードが文字を奪わないようにする。
+;; ブラウザ内の f/j/k などの操作キーは EAF のキーマップが処理する。
+(after! evil
+  (evil-set-initial-state 'eaf-mode 'emacs))
+
 (defun my/open-web-in-emacs ()
   "EAF ブラウザで URL または検索語を開く。"
   (interactive)
