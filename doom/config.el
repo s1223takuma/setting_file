@@ -175,8 +175,10 @@ A missing formatter or invalid source must not prevent saving."
 ;; プロジェクトごとの作業画面
 (load! "project-workspace")
 
-;; Project Home の左端の操作バーと上部のファイルタブ
-(load! "vscode-ui")
+;; 上部のファイルタブ
+(after! centaur-tabs
+  (setq centaur-tabs-height 28
+        centaur-tabs-bar-height 34))
 
 ;; texの自動化
 (load! "latex")

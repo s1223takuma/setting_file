@@ -189,7 +189,7 @@
                  (window-height . 0.28)))))))
 
 (defun my/project-home-open (&optional root)
-  "ROOTのProject Homeを開き、GUIではファイルツリーを左に表示する。"
+  "ROOTのProject Homeを開く。ファイルツリーは必要なときだけ表示する。"
   (interactive)
   (let* ((directory (or root
                         (and (fboundp 'doom-project-root) (doom-project-root))
@@ -209,16 +209,6 @@
         (setq-local default-directory directory)
         (my/project-home--render))
       (switch-to-buffer buffer)
-      (when (display-graphic-p)
-        (let ((home-window (selected-window))
-              (default-directory directory))
-          (condition-case err
-              (progn
-                (treemacs-add-and-display-current-project-exclusively)
-                (when (window-live-p home-window)
-                  (select-window home-window)))
-            (error
-             (display-warning 'project-home (error-message-string err))))))
       buffer)))
 
 ;; Doomのプロジェクト切替とworkspace生成はそのまま使い、入口だけ差し替える。
