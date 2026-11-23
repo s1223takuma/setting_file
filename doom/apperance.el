@@ -9,3 +9,8 @@
 (setq doom-theme 'doom-nord)
 ;; フォント
 (setq doom-font (font-spec :family "JetBrainsMono Nerd Font" :size 16))
+
+;; GUIでは少し余白を取り、コードの行を追いやすくする。
+(when (display-graphic-p)
+  (setq-default line-spacing 0.15)
+  (pixel-scroll-precision-mode 1))

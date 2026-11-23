@@ -22,7 +22,7 @@
   :group 'my/dashboard)
 
 (defface my/dashboard-heading
-  '((t (:inherit font-lock-keyword-face :weight bold)))
+  '((t (:inherit font-lock-keyword-face :weight bold :height 1.12)))
   "セクション見出しに使うface。"
   :group 'my/dashboard)
 
@@ -39,6 +39,14 @@
 (defface my/dashboard-muted
   '((t (:inherit font-lock-comment-face)))
   "補助的な表示に使うface。"
+  :group 'my/dashboard)
+
+(defface my/dashboard-action
+  '((((type graphic))
+     :foreground "#eceff4" :background "#3b4252"
+     :weight medium :box (:line-width (7 . 4) :color "#3b4252"))
+    (t (:inherit link)))
+  "Dashboardのクイック操作ボタン。"
   :group 'my/dashboard)
 
 (defcustom my/dashboard-item-count 3
@@ -61,11 +69,6 @@
   :type 'integer
   :group 'my/dashboard)
 
-(defcustom my/dashboard-elfeed-cache-seconds 120
-  "Elfeedを再取得するまでの秒数。"
-  :type 'integer
-  :group 'my/dashboard)
-
 (defcustom my/dashboard-default-categories '("Inbox" "大学" "学園祭")
   "Captureの候補へ常に表示するOrgカテゴリー。"
   :type '(repeat string)
@@ -79,6 +82,12 @@
 (defcustom my/dashboard-category-filter nil
   "DashboardのToday欄へ表示するカテゴリー。nilならすべて表示する。"
   :type '(choice (const :tag "All categories" nil) string)
+  :group 'my/dashboard)
+
+(defcustom my/dashboard-plan-file
+  (expand-file-name "~/Desktop/memo/test.org")
+  "DashboardのEmacs plan欄に表示するOrgファイル。"
+  :type 'file
   :group 'my/dashboard)
 
 (defconst my/dashboard--max-width 72
@@ -448,11 +457,16 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
   (+dashboard/open (selected-frame)))
 
 (defun my/dashboard-open-terminal ()
-  "Doomのterminalを開く。"
+  "Terminal workspaceを開く。"
   (interactive)
-  (cond ((fboundp '+vterm/toggle) (+vterm/toggle))
-        ((fboundp 'vterm) (vterm))
-        (t (ansi-term (getenv "SHELL")))))
+  (my/terminal-workspace-open))
+
+(defun my/dashboard-open-explorer ()
+  "プロジェクトツリーを開閉する。"
+  (interactive)
+  (if (fboundp 'treemacs)
+      (treemacs)
+    (user-error "Treemacs is unavailable; run doom sync")))
 
 (defun my/dashboard-open-magit ()
   "現在選択したプロジェクトのMagitを開く。"
@@ -714,54 +728,52 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
                      (error-message-string error-data) 24 nil nil "..."))
             #'my/dashboard-toggle-project)))))
 
-(defun my/dashboard--collect-elfeed-unread ()
-  "Elfeedの未読記事を新しい順に収集する。"
-  (require 'elfeed-db)
-  (require 'elfeed-search)
-  (elfeed-db-load)
-  (let* ((sorter (lambda (left right)
-                   (> (elfeed-entry-date left)
-                      (elfeed-entry-date right))))
-         (entries (seq-take
-                   (elfeed-search-entries "+unread" sorter)
-                   my/dashboard-item-count))
-         items)
-    (dolist (entry entries)
-      (let* ((article entry)
-             (title (or (elfeed-entry-title article) "Untitled article"))
-             (feed (elfeed-entry-feed article))
-             (source (and feed (elfeed-feed-title feed))))
-        (push
-         (my/dashboard--make-item
-          (if (and source (not (string-empty-p source)))
-              (format "%s  <%s>" title source)
-            title)
-          (lambda ()
-            (require 'elfeed-show)
-            (elfeed-show-entry article)))
-         items)))
-    (or (nreverse items)
-        (list (my/dashboard--empty-item
-               "No unread articles" #'elfeed)))))
+(defun my/dashboard--collect-plan-items ()
+  "Emacs planの未完了TODOを優先度順で返す。"
+  (if (not (file-readable-p my/dashboard-plan-file))
+      (list (my/dashboard--empty-item
+             "Open Emacs plan"
+             (lambda () (find-file my/dashboard-plan-file))))
+    (let ((file my/dashboard-plan-file)
+          records)
+      (with-temp-buffer
+        (insert-file-contents file)
+        (goto-char (point-min))
+        (while (re-search-forward
+                "^\\*+ +TODO +\\(?:\\[#\\([A-Z]\\)\\] +\\)?\\(.+\\)$"
+                nil t)
+          (push (list (or (match-string 1) "B")
+                      (match-string 2)
+                      (line-beginning-position))
+                records)))
+      (setq records
+            (sort (nreverse records)
+                  (lambda (left right)
+                    (string< (car left) (car right)))))
+      (or (mapcar
+           (lambda (record)
+             (let ((position (nth 2 record)))
+               (my/dashboard--make-item
+                (format "[%s] %s" (car record) (nth 1 record))
+                (lambda ()
+                  (find-file file)
+                  (goto-char position)
+                  (org-show-context 'agenda)))))
+           (seq-take records my/dashboard-item-count))
+          (list (my/dashboard--empty-item
+                 "No open items" (lambda () (find-file file))))))))
 
-(defun my/dashboard--elfeed-unread ()
-  "cache済みのElfeed未読記事を返す。"
-  (condition-case error-data
-      (my/dashboard--cached
-       'elfeed my/dashboard-elfeed-cache-seconds
-       #'my/dashboard--collect-elfeed-unread)
-    (error
-     (list (my/dashboard--empty-item
-            (format "Elfeed error: %s"
-                    (truncate-string-to-width
-                     (error-message-string error-data) 25 nil nil "..."))
-            #'elfeed)))))
+(defun my/dashboard--plan-items ()
+  "cache済みのEmacs plan項目を返す。"
+  (my/dashboard--cached
+   'plan my/dashboard-cache-seconds
+   #'my/dashboard--collect-plan-items))
 
 (defun my/dashboard--insert-item (item column width)
   "ITEMをCOLUMNからWIDTH以内に収めて挿入する。"
   (move-to-column column t)
-  ;; ASCII記号だけを使い、Nerd Fontsがなくても表示を崩さない。
-  (insert (propertize "> " 'face 'my/dashboard-muted))
+  (let ((marker (if (display-graphic-p) "• " "> ")))
+    (insert (propertize marker 'face 'font-lock-keyword-face)))
   (let ((label (truncate-string-to-width
                 (car item) (max 1 (- width 2)) nil nil "...")))
     (insert-text-button label
@@ -772,13 +784,13 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
 (defun my/dashboard--insert-heading (title column width)
   "TITLEをCOLUMNからWIDTH幅の見出しとして挿入する。"
   (move-to-column column t)
-  (insert (propertize (upcase title) 'face 'my/dashboard-heading))
-  (insert " ")
-  ;; 罫線もASCIIにしてterminalでの文字幅差を避ける。
-  (insert (propertize
-           (make-string
-            (max 2 (- width (string-width title) 1)) ?-)
-           'face 'my/dashboard-muted)))
+  (insert (propertize title 'face 'my/dashboard-heading))
+  (unless (display-graphic-p)
+    (insert " ")
+    (insert (propertize
+             (make-string
+              (max 2 (- width (string-width title) 1)) ?-)
+             'face 'my/dashboard-muted))))
 
 (defun my/dashboard--section-string (section width &optional limit)
   "SECTIONをWIDTH幅の文字列にする。LIMITは表示件数。"
@@ -810,12 +822,13 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
       (buffer-string))))
 
 (defconst my/dashboard--quick-actions
-  `(("Agenda" . ,#'my/dashboard-open-agenda)
-    ("Category" . ,#'my/dashboard-set-category-filter)
-    ("Projects" . ,#'my/dashboard-toggle-project)
-    ("Terminal" . ,#'my/dashboard-open-terminal)
+  `(("Explorer" . ,#'my/dashboard-open-explorer)
+    ("Agenda" . ,#'my/dashboard-open-agenda)
+    ("Pin project" . ,#'my/dashboard-toggle-project)
+    ("Terminal space" . ,#'my/dashboard-open-terminal)
     ("Magit" . ,#'my/dashboard-open-magit)
     ("Config" . ,#'my/dashboard-open-config)
+    ("Category" . ,#'my/dashboard-set-category-filter)
     ("Refresh" . ,#'my/dashboard-refresh))
   "Dashboard下部に並べるクイック操作。")
 
@@ -827,13 +840,15 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
         (insert "   "))
       (insert-text-button (car item)
                           'type 'my/dashboard-button
+                          'face 'my/dashboard-action
                           'dashboard-action (cdr item)
                           'help-echo "RET / click to run"))
     (buffer-string)))
 
 (defun my/dashboard-widget-date ()
   "中央に日付と時刻を表示する。"
-  (+dashboard-insert "")
+  (+dashboard-insert
+   (propertize "Your workspace" 'face 'my/dashboard-heading))
   ;; 別々に挿入すると、文字列の長さが違っても各行が正確に中央へ来る。
   (+dashboard-insert
    (propertize (format-time-string "%A, %B %e, %Y")
@@ -841,7 +856,7 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
   (+dashboard-insert
    (propertize (format-time-string "%H:%M")
                'face 'my/dashboard-time))
-  (+dashboard-insert ""))
+  (+dashboard-insert "" ""))
 
 (defun my/dashboard-widget-content ()
   "ウィンドウ幅に応じて本文を2カラムまたは1カラムで表示する。"
@@ -854,19 +869,19 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
          (today (cons today-title (my/dashboard--org-todos)))
          (recent (cons "Recent files" (my/dashboard--recent-files)))
          (projects (cons "Projects" (my/dashboard--projects)))
-         (unread (cons "Elfeed unread" (my/dashboard--elfeed-unread))))
+         (plan (cons "Emacs plan" (my/dashboard--plan-items))))
     (setq-local my/dashboard--last-window-width window-width)
     (if (>= window-width my/dashboard--two-column-min-width)
         (progn
-          ;; 左: Today / Recent、右: Projects / Elfeed unread。
+          ;; 左: Today / Recent、右: Projects / Emacs plan。
           (+dashboard-insert
            (my/dashboard--section-pair-string
             today projects content-width))
           (+dashboard-insert
            (my/dashboard--section-pair-string
-            recent unread content-width)))
+            recent plan content-width)))
       ;; 狭いterminalでは縦積みにして、横切れを防止する。
-      (dolist (section (list today projects recent unread))
+      (dolist (section (list today projects recent plan))
         (+dashboard-insert
          (my/dashboard--section-string
           section content-width (min 2 my/dashboard-item-count)))))))
@@ -874,7 +889,7 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
 (defun my/dashboard-widget-shortcuts ()
   "Dashboardのクイック操作を中央に表示する。"
   (+dashboard-insert "")
-  (if (>= (my/dashboard--window-width) 96)
+  (if (>= (my/dashboard--window-width) 110)
       (+dashboard-insert
        (my/dashboard--shortcut-string my/dashboard--quick-actions))
     ;; 狭いterminalでは2行に分けて操作名を省略しない。
@@ -886,7 +901,7 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
       (seq-drop my/dashboard--quick-actions 4))))
   (+dashboard-insert "")
   (+dashboard-insert
-   (propertize "SPC o d / :Dashboard    K/J to move    RET to open"
+   (propertize "SPC o d  Dashboard    SPC o p  Explorer    RET / click  Open"
                'face 'my/dashboard-muted)))
 
 (defun my/dashboard--org-capture-active-p ()
@@ -975,7 +990,11 @@ Orgの構文cacheを作らず、Herdrによる外部更新やOrg hookとも競�
 
 ;; Doom標準のbanner/footer/起動時間は維持し、中央の本文だけ差し替える。
 ;; 横方向の中央揃えはDoom標準の +dashboard-insert に任せる。
-(setq +dashboard-anchor '(top . center)
+(setq fancy-splash-image
+      (expand-file-name "assets/dashboard-banner.svg" doom-user-dir)
+      +dashboard-ascii-banner-fn (lambda () "  EMACS  ")
+      +dashboard-banner-vertical-padding '(1 . 1)
+      +dashboard-anchor '(top . center)
       +dashboard-functions
       '(+dashboard-widget-banner
         my/dashboard-widget-date

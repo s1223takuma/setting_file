@@ -1,0 +1,22 @@
+* Emacsを試す
+
+** DONE Org-modeを触る
+** DONE Magitを触る
+** DONE Diredを触った
+* Emacs作りたい機能
+** TODO [#A] markdownファイルを開いたら自動で`md-to-pdf`を実行し、別バッファにPDFを表示
+***  更新のたびに`md-to-pdf`を自動実行
+** DONE org-mode専用コマンドとして、pythonの実行セルを生成するコマンド
+** TODO [#B] gmail連携
+** TODO [#A] ダッシュボードの改造(ニュースとか見ないし)
+** TODO [#A] Emacs起動したら自動で動くterminal用workspace
+***  vterm使えるかな
+** TODO [#C] mdファイルにmermaidを書いたら時々動作が重くなる原因を究明
+** TODO [#C] (できたら)Googleドキュやスプシ, スライドと連携
+** DONE gptelの確認
+** DONE Emacs Doomで使えるコマンド一覧表を確認(AIにmdでまとめてもらうか...？)
+*** DONE PDF検索の使い方もマニュアルに
+** DONE カレントディレクトリをfinderアプリで開けるコマンド
+** TODO [#A] SQLファイル開いたら、隣にterminalを開くように
+** TODO [#B] UIを変更
+** TODO [#C] (おそらく難しいので後回し)自己成長するEmacs

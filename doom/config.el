@@ -113,11 +113,6 @@
         corfu-auto-prefix 1
         corfu-auto-delay 0.1))
 
-;;RSSの設定
-(after! elfeed
-  (setq elfeed-feeds
-        '("https://hnrss.org/frontpage")))
-
 ;; Neovimで使っている自作キーマップとExコマンド（プラグイン非依存）。
 (load! "vim-keymaps")
 (load! "keymap")
@@ -174,8 +169,15 @@ A missing formatter or invalid source must not prevent saving."
 ;; ダッシュボードの設定
 (load! "dashboard")
 
+;; Markdown/PDF、SQL、terminal workspace
+(load! "workflows")
+
+;; プロジェクトごとの作業画面
+(load! "project-workspace")
+
 ;; texの自動化
 (load! "latex")
 
 ;; gptel
+
 (load! "ai")
