@@ -175,6 +175,9 @@ A missing formatter or invalid source must not prevent saving."
 ;; プロジェクトごとの作業画面
 (load! "project-workspace")
 
+;; Project Home の左端の操作バーと上部のファイルタブ
+(load! "vscode-ui")
+
 ;; texの自動化
 (load! "latex")
 
