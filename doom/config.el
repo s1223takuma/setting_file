@@ -186,3 +186,6 @@ A missing formatter or invalid source must not prevent saving."
 ;; gptel
 
 (load! "ai")
+
+;; Emacs 内で Web ページを表示する EAF ブラウザ
+(load! "eaf-browser")
