@@ -192,3 +192,6 @@ A missing formatter or invalid source must not prevent saving."
 
 ;; Jupyter notebooks: cell editor, console, and plots.
 (load! "notebook")
+
+;; Remove completed tasks whose scheduled date is at least a week old.
+(load! "org-tasks-cleanup")
