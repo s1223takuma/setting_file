@@ -189,3 +189,6 @@ A missing formatter or invalid source must not prevent saving."
 
 ;; Emacs 内で Web ページを表示する EAF ブラウザ
 (load! "eaf-browser")
+
+;; Jupyter notebooks: cell editor, console, and plots.
+(load! "notebook")
