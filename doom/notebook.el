@@ -66,19 +66,36 @@
   (my/notebook--sync)
   (message "ノートブックを同期しました"))
 
+(defun my/notebook--show-all-pandas (client)
+  "Show every pandas row and column in CLIENT's kernel."
+  (jupyter-run-with-client client
+    (jupyter-sent
+     (jupyter-execute-request
+      :code (concat "try:\n"
+                    "    import pandas as _notebook_pd\n"
+                    "except ImportError:\n"
+                    "    pass\n"
+                    "else:\n"
+                    "    _notebook_pd.set_option('display.max_rows', None)\n"
+                    "    _notebook_pd.set_option('display.max_columns', None)\n"
+                    "    del _notebook_pd")
+      :silent t :store-history nil :handlers nil))))
+
 (defun my/notebook-console ()
   "Show or start the Jupyter console below the notebook."
   (interactive)
   (unless my/notebook-ipynb-file
     (user-error "ノートブックのPythonバッファで実行してください"))
   (require 'jupyter)
-  (let* ((client (and (bound-and-true-p jupyter-current-client)
-                      (jupyter-connected-p jupyter-current-client)
-                      jupyter-current-client))
-         (client (or client (jupyter-run-repl (my/notebook--kernel my/notebook-ipynb-file)
-                                               (file-name-base my/notebook-ipynb-file)
-                                               t)))
+  (let* ((existing (and (bound-and-true-p jupyter-current-client)
+                        (jupyter-connected-p jupyter-current-client)
+                        jupyter-current-client))
+         (client (or existing (jupyter-run-repl (my/notebook--kernel my/notebook-ipynb-file)
+                                                 (file-name-base my/notebook-ipynb-file)
+                                                 t)))
          (repl (oref client buffer)))
+    (unless existing
+      (my/notebook--show-all-pandas client))
     (setq-local my/notebook-repl-buffer repl)
     (display-buffer-in-side-window
      repl '((side . bottom) (slot . 0) (window-height . 0.32)))
