@@ -4,6 +4,12 @@
 (defvar-local my/notebook-ipynb-file nil)
 (defvar-local my/notebook-repl-buffer nil)
 
+(defvar my/notebook-mode-map (make-sparse-keymap))
+(define-minor-mode my/notebook-mode
+  "Keys for a Jupytext notebook buffer."
+  :lighter " Notebook"
+  :keymap my/notebook-mode-map)
+
 (defun my/notebook--data (file)
   "Read the JSON contents of FILE."
   (with-temp-buffer
@@ -105,6 +111,7 @@
     (find-file script)
     (require 'code-cells)
     (code-cells-mode 1)
+    (my/notebook-mode 1)
     (setq-local my/notebook-ipynb-file file)
     (add-hook 'after-save-hook #'my/notebook--sync-after-save nil t)
     (condition-case err
@@ -132,3 +139,7 @@
       :desc "Next cell" "n" #'code-cells-forward-cell
       :desc "Previous cell" "p" #'code-cells-backward-cell
       :desc "Sync notebook" "w" #'my/notebook-sync)
+
+;; Evil's normal state runs the cell; insert state keeps RET as a newline.
+(map! :map my/notebook-mode-map
+      :n "RET" #'code-cells-eval-and-step)
