@@ -12,7 +12,7 @@
           (file-attribute-modification-time attrs))))
 
 (defun my/org-tasks--clean-file (file cutoff)
-  "Remove old DONE leaf headings from FILE through CUTOFF.
+  "Remove old unlinked DONE leaf headings from FILE through CUTOFF.
 Return the number removed.  Do not change FILE if it has unsaved edits."
   (let ((visiting (get-file-buffer file)))
     (if (or (and visiting (buffer-modified-p visiting))
@@ -31,6 +31,8 @@ Return the number removed.  Do not change FILE if it has unsaved edits."
                             scheduled
                             (string-match "<\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}\\)" scheduled)
                             (not (string-lessp cutoff (match-string 1 scheduled)))
+                            ;; Herdr propagates removal of linked tasks to Google Calendar.
+                            (not (org-entry-get nil "HERDR_GCAL"))
                             ;; Keep a parent if it contains other tasks.
                             (not (save-excursion (org-goto-first-child))))
                    (push (cons (point)
@@ -60,7 +62,7 @@ Return the number removed.  Do not change FILE if it has unsaved edits."
         removed))))
 
 (defun my/org-tasks-cleanup ()
-  "Remove DONE tasks scheduled at least seven days ago from tasks.org."
+  "Remove unlinked DONE tasks scheduled at least seven days ago from tasks.org."
   (interactive)
   (let* ((file (expand-file-name "tasks.org" org-directory))
          (cutoff (format-time-string "%Y-%m-%d"
